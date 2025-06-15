@@ -4,497 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horario de Medicamentos</title>
-    <!-- PWA Manifest - Asegúrate de que tu manifest.json esté en la misma carpeta -->
-    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA Manifest - Ruta absoluta para GitHub Pages -->
+    <link rel="manifest" href="/meds-abueloHastamorir/manifest.json">
     <!-- Theme color for PWA - Define el color de la barra del navegador, se ajusta con el modo oscuro -->
-    <meta name="theme-color" content="#1A202C"> <!-- Color para el tema oscuro, cambiará en modo claro -->
+    <meta name="theme-color" content="#1A202C">
+
+    <!-- Apple Touch Icon para iOS - Ruta absoluta recomendada -->
+    <!-- Asegúrate de tener este icono en tu carpeta /icons/ -->
+    <link rel="apple-touch-icon" href="/meds-abueloHastamorir/icons/icon-180x180.png">
+
+    <!-- Meta Tags para Compartir en Redes Sociales (Open Graph y Twitter Cards) -->
+    <!-- Asegúrate de que las rutas de las imágenes sean ABSOLUTAS a tu URL de GitHub Pages -->
+    <meta property="og:title" content="Horario de Medicamentos Cenén">
+    <meta property="og:description" content="Una aplicación simple para gestionar el horario de medicamentos de Cenén, disponible offline.">
+    <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/icon-512x512.png">
+    <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Horario de Medicamentos Cenén">
+    <meta name="twitter:description" content="Una aplicación simple para gestionar el horario de medicamentos de Cenén, disponible offline.">
+    <meta name="twitter:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/icon-512x512.png">
+    <!-- Si tienes un handle de Twitter para la app, puedes añadir: -->
+    <!-- <meta name="twitter:site" content="@tuTwitterHandle"> -->
 
     <!-- Tailwind CSS CDN para utilidades y sistema de diseño -->
+    <!-- Para una PWA offline-first, es ideal auto-hospedar este CSS. -->
+    <!-- Si no lo auto-hospedas, su URL debe estar en el CACHE_NAME del Service Worker. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Inter para una estética limpia y moderna -->
+    <!-- Para una PWA offline-first, es ideal auto-hospedar estas fuentes. -->
+    <!-- Si no lo auto-hospedas, su URL debe estar en el CACHE_NAME del Service Worker. -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        /* Variables CSS para el tema oscuro (por defecto, como en la imagen) */
-        :root {
-            --app-background: #000000; /* Negro puro para un fondo profundo */
-            /* Componentes con Glassmorphism usan bases RGB y luego RGBA para transparencia */
-            --header-background-base-rgb: 26, 32, 44; /* RGB de #1A202C */
-            --header-background: rgba(var(--header-background-base-rgb), 0.7); /* Header con transparencia */
-            --header-text: #FFFFFF; /* Texto blanco en el header */
+    <!-- Carga tu CSS personalizado desde un archivo externo -->
+    <link rel="stylesheet" href="/meds-abueloHastamorir/style.css">
 
-            --text-primary: #F5F5F7; /* Blanco grisáceo para texto principal */
-            --text-secondary: #8E8E93; /* Gris medio para texto secundario/detalles */
-            --accent-blue: #0A84FF; /* Azul vibrante para acentos y enlaces */
-
-            --card-background-base-rgb: 28, 28, 30; /* RGB de #1C1C1E */
-            --card-background: rgba(var(--card-background-base-rgb), 0.6); /* Tarjetas con transparencia */
-            --card-border: #3A3A3C; /* Borde sutil y más oscuro para las tarjetas */
-            --separator-line: #4A4A4C; /* Gris oscuro para la línea vertical */
-
-            /* Colores para las notas/etiquetas (tags) */
-            --note-background-next: #0A2E5B; /* Azul oscuro para "Próximo" */
-            --note-text-next: #6AA3EC; /* Azul claro para texto de "Próximo" */
-            --note-background-optional: #4D3D10; /* Marrón oscuro para "Opcional" */
-            --note-text-optional: #FDC700; /* Amarillo para texto de "Opcional" */
-            --note-background-meal: #0E4E30; /* Verde oscuro para "Con el almuerzo" / "Antes de la cena" */
-            --note-text-meal: #77D3A6; /* Verde claro para texto de "Con el almuerzo" */
-            --note-background-tooth: #0A4F6B; /* Azul verdoso oscuro para "Diente" */
-            --note-text-tooth: #87CEEB; /* Azul claro para texto de "Diente" */
-            --note-background-day-specific: #29292B; /* Gris muy oscuro para el eyebrow de días */
-            --note-text-day-specific: #C7C7CC; /* Gris claro para texto de días */
-            --note-background-no-take: #6A0000; /* Rojo oscuro para "Hoy no se toma" */
-            --note-text-no-take: #FF453A; /* Rojo vibrante para texto de "Hoy no se toma" */
-            --note-background-glucometer: #0A3D5B; /* Azul oscuro para "Medir con glucómetro" */
-            --note-text-glucometer: #87CEEB; /* Azul claro para texto de "Medir con glucómetro" */
-
-            /* Botones y otros elementos */
-            --button-on-header-bg-base-rgb: 41, 41, 43; /* RGB de #29292B */
-            --button-on-header-bg: rgba(var(--button-on-header-bg-base-rgb), 0.7);
-            --button-on-header-text: #FFFFFF;
-            --button-on-header-border: #3A3A3C;
-
-            /* Colores para el resaltado del slot "Próximo" */
-            --next-slot-line-highlight: #0A84FF; /* Azul vibrante */
-            --next-slot-time-highlight: #FFFFFF; /* Hora en blanco puro */
-        }
-
-        /* Variables CSS para el tema claro */
-        @media (prefers-color-scheme: light) {
-            :root {
-                --app-background: #F5F5F7; /* Gris muy claro para el fondo */
-                --header-background-base-rgb: 255, 255, 255; /* RGB de #FFFFFF */
-                --header-background: rgba(var(--header-background-base-rgb), 0.8); /* Header con transparencia */
-                --header-text: #1D1D1F; /* Negro para texto del header */
-
-                --text-primary: #1D1D1F; /* Negro para texto principal */
-                --text-secondary: #6E6E73; /* Gris oscuro para texto secundario */
-                --accent-blue: #007AFF; /* Azul estándar de Apple para acentos */
-
-                --card-background-base-rgb: 255, 255, 255; /* RGB de #FFFFFF */
-                --card-background: rgba(var(--card-background-base-rgb), 0.7); /* Tarjetas con transparencia */
-                --card-border: #E5E5EA; /* Gris claro para borde de tarjetas */
-                --separator-line: #E5E5EA; /* Gris claro para la línea vertical */
-
-                /* Colores para las notas/etiquetas (tags) en modo claro */
-                --note-background-next: #E0F2FF; /* Azul muy claro para "Próximo" */
-                --note-text-next: #007AFF; /* Azul oscuro para texto de "Próximo" */
-                --note-background-optional: #FFFBEB; /* Amarillo muy claro para "Opcional" */
-                --note-text-optional: #B8860B; /* Marrón para texto de "Opcional" */
-                --note-background-meal: #E6FFFA; /* Verde muy claro para "Con el almuerzo" */
-                --note-text-meal: #228B22; /* Verde oscuro para texto de "Con el almuerzo" */
-                --note-background-tooth: #E6F8FF; /* Azul verdoso muy claro para "Diente" */
-                --note-text-tooth: #007AFF; /* Azul oscuro para texto de "Diente" */
-                --note-background-day-specific: #F0F0F0; /* Gris claro para el eyebrow de días */
-                --note-text-day-specific: #6E6E73; /* Gris oscuro para texto de días */
-                --note-background-no-take: #FFECEC; /* Rojo muy claro para "Hoy no se toma" */
-                --note-text-no-take: #FF3B30; /* Rojo vibrante para texto de "Hoy no se toma" */
-                --note-background-glucometer: #E0F2FF; /* Azul claro para "Medir con glucómetro" */
-                --note-text-glucometer: #007AFF; /* Azul oscuro para texto de "Medir con glucómetro" */
-
-                /* Botones y otros elementos en modo claro */
-                --button-on-header-bg-base-rgb: 240, 240, 240; /* RGB de #F0F0F0 */
-                --button-on-header-bg: rgba(var(--button-on-header-bg-base-rgb), 0.8);
-                --button-on-header-text: #1D1D1F;
-                --button-on-header-border: #D1D1D6;
-
-                /* Colores para el resaltado del slot "Próximo" en modo claro */
-                --next-slot-line-highlight: #007AFF; /* Azul estándar de Apple */
-                --next-slot-time-highlight: #1D1D1F; /* Hora en negro */
-            }
-        }
-
-        /* Estilos base del cuerpo y transiciones para el cambio de tema */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--app-background);
-            color: var(--text-primary);
-            transition: background-color 0.4s ease, color 0.4s ease;
-        }
-
-        /* Estilos generales para el contenedor principal */
-        .container {
-            padding: 1rem; /* Espaciado general en los bordes */
-        }
-        @media (min-width: 640px) {
-            .container {
-                padding: 2rem;
-            }
-        }
-
-        /* Estilos del Encabezado (Header) con Glassmorphism */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 1000; /* Alto z-index para que esté siempre visible */
-            background-color: var(--header-background); /* Fondo RGBA */
-            backdrop-filter: saturate(180%) blur(20px); /* Efecto de desenfoque y saturación */
-            -webkit-backdrop-filter: saturate(180%) blur(20px); /* Compatibilidad Webkit */
-            color: var(--header-text);
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); /* Sombra suave y profunda */
-            padding: 1.5rem 1.25rem 0.5rem; /* Relleno inicial */
-            display: grid;
-            grid-template-columns: 1fr auto; /* Dos columnas para título/subtítulo y fecha/hora */
-            grid-template-rows: auto auto; /* Dos filas para elementos del grid */
-            gap: 0.5rem 1rem; /* Espacio entre elementos del grid */
-            align-items: center;
-            border-bottom: 1px solid rgba(var(--header-background-base-rgb), 0.15); /* Borde más sutil */
-        }
-
-        .header-left {
-            grid-column: 1;
-            grid-row: 1;
-        }
-
-        .header-right {
-            grid-column: 2;
-            grid-row: 1;
-            text-align: right;
-            font-size: 0.875rem; /* text-sm */
-            color: var(--header-text); /* Asegura que la fecha tenga el color del header */
-            line-height: 1.2;
-        }
-
-        .header-title {
-            font-size: 1.75rem; /* text-3xl de Tailwind */
-            font-weight: 700; /* font-bold */
-            transition: font-size 0.3s ease-in-out;
-        }
-
-        .header-subtitle {
-            font-size: 1rem; /* text-base */
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.7); /* Ligeramente más transparente */
-            transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
-            display: block;
-        }
-
-        .header-full-date-time {
-            display: block; /* Muestra por defecto */
-        }
-        .header-scrolled-date-time {
-            display: none; /* Oculta por defecto */
-            font-weight: 500;
-            white-space: nowrap; /* Evita que se rompa la línea */
-        }
-
-        .header-button {
-            grid-column: 1 / span 2; /* Ocupa ambas columnas */
-            grid-row: 2;
-            background-color: var(--button-on-header-bg); /* Fondo RGBA */
-            color: var(--button-on-header-text);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: fit-content; /* Se ajusta al contenido */
-            margin: 0.5rem auto 1rem; /* Centrado y con margen */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave para el botón */
-            transition: all 0.3s ease-in-out;
-            cursor: pointer;
-            border: 1px solid var(--button-on-header-border); /* Borde sutil */
-            backdrop-filter: saturate(180%) blur(10px); /* Glassmorphism para el botón */
-            -webkit-backdrop-filter: saturate(180%) blur(10px);
-        }
-        .header-button:active {
-            transform: scale(0.98); /* Efecto de clic */
-        }
-
-
-        /* Estilos del Header al hacer scroll */
-        .header.scrolled {
-            padding: 0.5rem 1.25rem; /* Relleno menor */
-            grid-template-rows: auto; /* Una sola fila */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra más intensa al hacer scroll */
-        }
-
-        .header.scrolled .header-title {
-            font-size: 1.25rem; /* text-xl */
-        }
-
-        .header.scrolled .header-subtitle,
-        .header.scrolled .header-button {
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
-            pointer-events: none; /* Deshabilita clics */
-            margin: 0;
-            padding: 0;
-        }
-
-        .header.scrolled .header-full-date-time {
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
-            display: none;
-        }
-        .header.scrolled .header-scrolled-date-time {
-            display: inline-block; /* Muestra el texto corto */
-            opacity: 1;
-            transform: translateY(0);
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.2;
-            color: var(--header-text); /* Asegura el color adecuado al hacer scroll */
-        }
-
-        /* Diseño de la lista de medicamentos */
-        .medication-day-section {
-            padding-top: 1.5rem; /* Espacio superior para compensar el header sticky */
-        }
-
-        .time-slot {
-            display: flex;
-            margin-bottom: 0;
-            padding-bottom: 1.5rem; /* Espacio al final de cada slot */
-            transition: background-color 0.4s ease; /* Transición para el fondo del slot */
-        }
-
-        .time-indicator {
-            flex-shrink: 0;
-            width: 85px; /* Ancho fijo para la columna de la hora */
-            text-align: right;
-            padding-right: 1.25rem;
-            padding-top: 0.3rem; /* Alineación vertical con el contenido */
-            /* Se revierte la posición sticky */
-            position: relative; /* Vuelve a ser relative */
-            z-index: auto; /* Vuelve a auto */
-            color: var(--text-secondary); /* Color secundario para la hora */
-            font-weight: 500;
-            font-size: 0.95rem;
-            line-height: 1.3;
-            transition: color 0.4s ease; /* Transición para el color de la hora */
-            /* Se quitan los estilos de fondo y padding específicos */
-            /* background-color: transparent; */
-            /* backdrop-filter: none; */
-            /* -webkit-backdrop-filter: none; */
-            /* padding-top: 0.3rem; */
-            /* padding-bottom: 0.3rem; */
-        }
-
-        .time-slot.is-next .time-indicator {
-            color: var(--next-slot-time-highlight); /* Hora en blanco cuando es el siguiente */
-            font-weight: 600; /* Más audaz */
-        }
-
-        .next-indicator {
-            display: inline-flex; /* Usar flex para alinear emoji y texto */
-            align-items: center;
-            margin-top: 0.25rem;
-            font-size: 0.75rem; /* Aumentado */
-            font-weight: 600;
-            background-color: var(--note-background-next);
-            color: var(--note-text-next);
-            padding: 0.2rem 0.6rem; /* Aumentado */
-            border-radius: 9999px; /* Totalmente redondeado (pill shape) */
-        }
-
-
-        .medication-list {
-            flex-grow: 1; /* Ocupa el espacio restante */
-            padding-left: 1.25rem;
-            border-left: 1px solid var(--separator-line); /* Línea vertical sutil */
-            padding-top: 0;
-            transition: border-left-color 0.4s ease, border-left-width 0.4s ease; /* Transición para el color y grosor de la línea */
-        }
-
-        .time-slot.is-next .medication-list {
-            border-left-color: var(--next-slot-line-highlight); /* Línea azul vibrante */
-            border-left-width: 3px; /* Línea más gruesa */
-        }
-
-
-        /* Estilos de las tarjetas de medicamentos con Glassmorphism */
-        .medication-item,
-        .medication-group-header {
-            background-color: var(--card-background); /* Fondo RGBA */
-            backdrop-filter: saturate(180%) blur(10px); /* Efecto de desenfoque y saturación para tarjetas */
-            -webkit-backdrop-filter: saturate(180%) blur(10px);
-            border-radius: 0.75rem; /* rounded-xl */
-            padding: 1rem;
-            margin-bottom: 0.75rem; /* Espacio entre items */
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Sombra suave para las tarjetas */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid var(--card-border); /* Borde sutil */
-            position: relative; /* Necesario para posicionar el eyebrow */
-        }
-        .medication-item:last-child {
-            margin-bottom: 0; /* No margen en el último item de cada lista */
-        }
-
-        .medication-name {
-            font-size: 1rem; /* text-base */
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-            transition: text-decoration 0.3s ease, color 0.3s ease; /* Transición para el tachado y color */
-        }
-        .medication-name.strikethrough {
-            text-decoration: line-through;
-            color: var(--text-secondary); /* Color más tenue cuando está tachado */
-        }
-
-        .medication-detail {
-            font-size: 0.875rem; /* text-sm */
-            color: var(--text-secondary);
-            margin-bottom: 0;
-        }
-
-        .medication-group-header .medication-name {
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        .medication-group-header .medication-detail {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Estilos generales para notas (tags) */
-        .note-text {
-            padding: 0.25rem 0.75rem; /* Aumentado */
-            border-radius: 0.6rem; /* Aumentado */
-            font-size: 0.8rem; /* Aumentado */
-            font-weight: 500;
-            margin-top: 0.5rem;
-            display: inline-flex; /* Cambiado a inline-flex para alinear emoji y texto */
-            align-items: center;
-            line-height: 1.2;
-        }
-        .note-text span { /* Para el emoji */
-            margin-right: 0.25rem;
-            font-size: 0.9rem; /* Ajuste para el tamaño del emoji */
-        }
-
-
-        /* Estilos específicos para cada tipo de nota */
-        .optional-note .note-text {
-            background-color: var(--note-background-optional);
-            color: var(--note-text-optional);
-        }
-
-        .meal-note .note-text { /* Incluye "Antes del desayuno" y "Con el almuerzo" */
-            background-color: var(--note-background-meal);
-            color: var(--note-text-meal);
-        }
-
-        .glucometer-note .note-text {
-            background-color: var(--note-background-glucometer);
-            color: var(--note-text-glucometer);
-        }
-
-
-        /* Estilos para el eyebrow de días específicos (Vuelve a flotar) */
-        .day-specific-eyebrow {
-            font-size: 0.75rem; /* Aumentado */
-            font-weight: 500;
-            color: var(--note-text-day-specific);
-            background-color: var(--note-background-day-specific);
-            padding: 0.15rem 0.6rem; /* Aumentado */
-            border-radius: 0.4rem; /* Aumentado */
-            /* margin-bottom: 0.5rem; REMOVIDO */
-            display: inline-flex;
-            align-items: center;
-            position: absolute; /* Vuelve a ser absoluto */
-            top: -0.8rem; /* Ajuste original */
-            left: 0.8rem; /* Ajuste original */
-            z-index: 10; /* Asegura que esté por encima de la tarjeta */
-        }
-        .day-specific-eyebrow span { /* Para el emoji */
-            margin-right: 0.25rem;
-            font-size: 0.85rem;
-        }
-
-        /* Estilo para el chip "Hoy no se toma" */
-        .no-take-chip {
-            background-color: var(--note-background-no-take);
-            color: var(--note-text-no-take);
-            padding: 0.25rem 0.75rem; /* Aumentado */
-            border-radius: 0.6rem; /* Aumentado */
-            font-size: 0.8rem; /* Aumentado */
-            font-weight: 500;
-            display: inline-flex; /* Cambiado a inline-flex para alinear emoji y texto */
-            align-items: center;
-            margin-left: 0.5rem; /* Espacio a la izquierda del nombre del medicamento */
-            line-height: 1.2;
-        }
-        .no-take-chip span { /* Para el emoji */
-            margin-right: 0.25rem;
-            font-size: 0.9rem;
-        }
-
-
-        /* Ajustes responsivos para dispositivos pequeños */
-        @media (max-width: 640px) {
-            .header {
-                padding: 1.25rem 1rem 0.5rem;
-                gap: 0.4rem 0.8rem;
-            }
-            .header.scrolled {
-                padding: 0.4rem 1rem;
-            }
-            .header-title {
-                font-size: 1.3rem;
-            }
-            .header.scrolled .header-title {
-                font-size: 1.05rem;
-            }
-            .header-button {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-            .time-indicator {
-                width: 75px; /* Ancho menor en móviles */
-                font-size: 0.85rem;
-                padding-right: 0.8rem;
-            }
-            .medication-list {
-                padding-left: 0.8rem;
-            }
-            .medication-item {
-                padding: 0.8rem;
-                margin-bottom: 0.6rem;
-            }
-            .medication-name {
-                font-size: 0.95rem;
-            }
-            .medication-detail {
-                font-size: 0.8rem;
-            }
-            .medication-group-header {
-                padding: 0.8rem;
-                margin-bottom: 0.6rem;
-            }
-            .medication-group-header .medication-name {
-                font-size: 1rem;
-            }
-            .day-specific-eyebrow {
-                font-size: 0.7rem; /* Ajuste para móvil */
-                top: -0.7rem; /* Vuelve al ajuste original para móvil */
-                left: 0.6rem; /* Vuelve al ajuste original para móvil */
-                padding: 0.1rem 0.5rem;
-            }
-            .day-specific-eyebrow span {
-                font-size: 0.75rem;
-            }
-            .no-take-chip {
-                font-size: 0.7rem; /* Ajuste para móvil */
-                padding: 0.2rem 0.6rem;
-            }
-            .no-take-chip span {
-                font-size: 0.8rem;
-            }
-            .note-text {
-                font-size: 0.7rem; /* Ajuste para móvil */
-                padding: 0.2rem 0.6rem;
-            }
-            .note-text span {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <header id="mainHeader" class="header">
@@ -512,7 +58,7 @@
         </button>
     </header>
 
-    <main class="container mx-auto max-w-2xl"> <!-- Limita el ancho del contenido para mejor legibilidad -->
+    <main class="container mx-auto max-w-2xl">
         <section class="medication-day-section">
             <!-- Bloque de 6:00 AM -->
             <div class="time-slot" data-time="06:00">
@@ -594,7 +140,7 @@
                         <p class="medication-detail">Antihipertensivo</p>
                     </div>
                     <div class="medication-item" data-days="lunes,miercoles,viernes">
-                        <span class="day-specific-eyebrow hidden"><span>🗓️</span></span> <!-- Este span será llenado por JS -->
+                        <span class="day-specific-eyebrow hidden"><span>🗓️</span></span>
                         <h3 class="medication-name">Trimetoprim</h3>
                         <p class="medication-detail">Antibiótico</p>
                     </div>
@@ -715,214 +261,28 @@
         </section>
     </main>
 
+    <!-- Carga tu JavaScript personalizado desde un archivo externo -->
+    <script src="/meds-abueloHastamorir/app.js"></script>
+
+    <!-- Script para registrar el Service Worker -->
     <script>
-        // JavaScript para el encabezado pegajoso y la actualización de fecha/hora
-        const header = document.getElementById('mainHeader');
-        const fullDateSpan = document.getElementById('fullDate');
-        const fullTimeSpan = document.getElementById('fullTime');
-        const scrolledDateTimeSpan = document.getElementById('scrolledDateTime');
-        const addCalendarButton = document.getElementById('addCalendarButton');
-        const scrollThreshold = 100; // Píxeles después de los cuales el encabezado se encoge
-
-        // Nombres de los días de la semana en español para la lógica
-        const daysOfWeek = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-
-        // Función para actualizar la fecha y hora
-        function updateDateTime() {
-            const now = new Date();
-            // Opciones completas para la fecha (ej. "Sábado, 14 de junio")
-            const optionsFullDate = { weekday: 'long', day: 'numeric', month: 'long' };
-            // Opciones para la hora (ej. "11:30 PM")
-            const optionsFullTime = { hour: '2-digit', minute: '2-digit', hour12: true };
-
-            // Opciones para la fecha y hora cuando se hace scroll (ej. "Sáb. 11:30 PM")
-            const optionsScrolledDate = { weekday: 'short' }; // Ej. "Sáb."
-
-            const fullDate = now.toLocaleDateString('es-ES', optionsFullDate);
-            const fullTime = now.toLocaleTimeString('es-ES', optionsFullTime);
-            const scrolledDate = now.toLocaleDateString('es-ES', optionsScrolledDate);
-            const scrolledTime = now.toLocaleTimeString('es-ES', optionsFullTime);
-
-            fullDateSpan.textContent = `${fullDate.charAt(0).toUpperCase() + fullDate.slice(1)}`; // Capitaliza la primera letra del día
-            fullTimeSpan.textContent = fullTime;
-            scrolledDateTimeSpan.textContent = `${scrolledDate}. ${scrolledTime}`;
-
-            // Obtener el día de la semana actual en minúsculas y sin acentos para comparación
-            const currentDayIndex = now.getDay();
-            const currentDay = daysOfWeek[currentDayIndex]; // "lunes", "martes", etc.
-
-            // Aplicar lógica de días específicos
-            applyDaySpecificLogic(currentDay);
-
-            // Aplicar resaltado del próximo bloque
-            highlightCurrentTimeSlot(now);
-        }
-
-        // Función para aplicar lógica de días específicos a los medicamentos
-        function applyDaySpecificLogic(currentDay) {
-            document.querySelectorAll('.medication-item[data-days]').forEach(item => {
-                const daysAttr = item.getAttribute('data-days');
-                const specificDays = daysAttr.split(',').map(day => day.trim());
-                const medicationNameElement = item.querySelector('.medication-name');
-                let eyebrow = item.querySelector('.day-specific-eyebrow');
-                let noTakeChip = item.querySelector('.no-take-chip');
-
-                // Crear eyebrow si no existe
-                if (!eyebrow) {
-                    eyebrow = document.createElement('span');
-                    eyebrow.className = 'day-specific-eyebrow hidden';
-                    item.prepend(eyebrow); // Añadir como primer hijo
-                }
-
-                // Crear no-take chip si no existe
-                if (!noTakeChip) {
-                    noTakeChip = document.createElement('span');
-                    noTakeChip.className = 'no-take-chip hidden';
-                    noTakeChip.innerHTML = '<span>🚫</span> Hoy no se toma'; // Incluye el emoji aquí
-                    medicationNameElement.appendChild(noTakeChip);
-                }
-
-                // Formatear los días para el eyebrow
-                const formattedDays = specificDays.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(', ');
-                eyebrow.innerHTML = `<span>🗓️</span> Tomar: ${formattedDays}`; // Incluye el emoji aquí
-
-                // Mostrar el eyebrow
-                eyebrow.classList.remove('hidden');
-
-                if (specificDays.includes(currentDay)) {
-                    // Si hoy se toma
-                    medicationNameElement.classList.remove('strikethrough');
-                    noTakeChip.classList.add('hidden');
-                } else {
-                    // Si hoy NO se toma
-                    medicationNameElement.classList.add('strikethrough');
-                    noTakeChip.classList.remove('hidden');
-                }
+        // Verifica si el navegador soporta Service Workers
+        if ('serviceWorker' in navigator) {
+            // Espera a que la página cargue completamente para registrar el Service Worker
+            window.addEventListener('load', () => {
+                // Registra el Service Worker, usando una ruta absoluta para GitHub Pages.
+                // Es crucial que 'sw.js' esté en la raíz de tu subdirectorio de repositorio.
+                navigator.serviceWorker.register('/meds-abueloHastamorir/sw.js')
+                    .then(registration => {
+                        // Si el registro es exitoso, imprime el alcance del Service Worker
+                        console.log('Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        // Si el registro falla, imprime el error
+                        console.error('Fallo el registro del Service Worker:', error);
+                    });
             });
         }
-
-        // Función para resaltar el bloque de tiempo "Próximo"
-        function highlightCurrentTimeSlot(now) {
-            const timeSlots = document.querySelectorAll('.time-slot');
-            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-            let nextSlot = null;
-            let firstSlot = null; // Para el caso de que todas las horas ya hayan pasado
-
-            // Resetear todos los resaltados
-            timeSlots.forEach(slot => {
-                slot.classList.remove('is-next');
-                const nextIndicator = slot.querySelector('.next-indicator');
-                if (nextIndicator) {
-                    nextIndicator.style.display = 'none'; // Ocultar todos los indicadores 'Próximo'
-                }
-            });
-
-            for (let i = 0; i < timeSlots.length; i++) {
-                const slot = timeSlots[i];
-                if (!firstSlot) firstSlot = slot; // Capturar el primer slot
-
-                const timeAttr = slot.getAttribute('data-time'); // Formato "HH:MM"
-                if (timeAttr) {
-                    const [hours, minutes] = timeAttr.split(':').map(Number);
-                    const slotTimeInMinutes = hours * 60 + minutes;
-
-                    if (slotTimeInMinutes >= currentTimeInMinutes) {
-                        nextSlot = slot;
-                        break; // Encontramos el próximo slot
-                    }
-                }
-            }
-
-            // Aplicar resaltado al slot encontrado
-            if (nextSlot) {
-                nextSlot.classList.add('is-next');
-                const nextIndicator = nextSlot.querySelector('.next-indicator');
-                if (nextIndicator) {
-                    nextIndicator.style.display = 'inline-flex'; // Mostrar el indicador 'Próximo'
-                }
-            } else if (firstSlot) {
-                // Si todas las horas ya pasaron (es decir, ya pasó la última hora del día),
-                // resaltar el primer slot del día siguiente (o el primer slot del día actual si es antes de la primera medicación)
-                firstSlot.classList.add('is-next');
-                const nextIndicator = firstSlot.querySelector('.next-indicator');
-                if (nextIndicator) {
-                    nextIndicator.style.display = 'inline-flex'; // Mostrar el indicador 'Próximo'
-                }
-            }
-        }
-
-        // Función para hacer scroll al próximo medicamento
-        function scrollToNextMedication() {
-            const nextMedicationSlot = document.querySelector('.time-slot.is-next');
-            if (nextMedicationSlot) {
-                // Volvemos al scrollIntoView básico
-                setTimeout(() => {
-                    nextMedicationSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
-        }
-
-        // Se elimina la función updateStickyTimeIndicators() y sus llamadas
-
-        // *** LÓGICA DE INICIALIZACIÓN DE LA PWA ***
-        // Se ejecuta una vez que el DOM está completamente cargado
-        document.addEventListener('DOMContentLoaded', () => {
-            updateDateTime(); // Actualiza fecha/hora, aplica lógica de días y resalta el próximo slot
-            scrollToNextMedication(); // Hace scroll al próximo slot
-        });
-
-        // Actualizar fecha y hora y lógica de días específicos cada minuto
-        setInterval(updateDateTime, 60000); // Actualiza cada 60 segundos
-
-        // Listener de evento de scroll para el comportamiento del encabezado
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > scrollThreshold) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Listener de evento de redimensionamiento de la ventana (se elimina la llamada a updateStickyTimeIndicators)
-        // window.addEventListener('resize', updateStickyTimeIndicators); // No es necesaria si no hay sticky hours
-
-        // Event listener para el botón "Añadir al Calendario (iOS)"
-        addCalendarButton.addEventListener('click', () => {
-            console.log('Se hizo clic en Añadir al Calendario (iOS)');
-
-            // Mostrar un mensaje temporal al usuario (reemplazo de alert())
-            const messageBox = document.createElement('div');
-            messageBox.textContent = 'Funcionalidad de añadir al calendario no implementada en esta demo.';
-            messageBox.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: var(--card-background);
-                color: var(--text-primary);
-                padding: 12px 25px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                z-index: 1001;
-                opacity: 0;
-                transition: opacity 0.3s ease-in-out;
-                font-family: 'Inter', sans-serif;
-                font-size: 0.9rem;
-                border: 1px solid var(--card-border);
-            `;
-            document.body.appendChild(messageBox);
-
-            // Animar la aparición y desaparición
-            setTimeout(() => { messageBox.style.opacity = 1; }, 50);
-            setTimeout(() => {
-                messageBox.style.opacity = 0;
-                messageBox.addEventListener('transitionend', () => messageBox.remove());
-            }, 3000);
-        });
-
-        // ************************************************************
-        // AQUÍ IRÁN TUS SCRIPTS ESPECÍFICOS DE LA PWA ORIGINAL SI LOS TIENES
-        // ************************************************************
     </script>
 </body>
 </html>
