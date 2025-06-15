@@ -33,7 +33,7 @@
 
     /* Botones y otros elementos */
     --button-on-header-bg-base-rgb: 41, 41, 43; /* RGB de #29292B */
-    --button-on-header-bg: rgba(var(--button-on-header-bg-base-rgb), 0.7);
+    --button-on-header-bg: rgba(var(--button-on-header-base-rgb), 0.7);
     --button-on-header-text: #FFFFFF;
     --button-on-header-border: #3A3A3C;
 
@@ -289,7 +289,8 @@ body {
     backdrop-filter: saturate(180%) blur(10px); /* Efecto de desenfoque y saturación para tarjetas */
     -webkit-backdrop-filter: saturate(180%) blur(10px);
     border-radius: 0.75rem; /* rounded-xl */
-    padding: 1rem;
+    /* *** MODIFICACIÓN AQUÍ: Ajuste de padding-top para hacer espacio al eyebrow *** */
+    padding: 1.5rem 1rem 1rem; /* padding-top 1.5rem, otros lados 1rem */
     margin-bottom: 0.75rem; /* Espacio entre items */
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Sombra suave para las tarjetas */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -362,7 +363,7 @@ body {
 }
 
 
-/* Estilos para el eyebrow de días específicos (Vuelve a flotar) */
+/* Estilos para el eyebrow de días específicos */
 .day-specific-eyebrow {
     font-size: 0.75rem; /* Aumentado */
     font-weight: 500;
@@ -372,9 +373,10 @@ body {
     border-radius: 0.4rem; /* Aumentado */
     display: inline-flex;
     align-items: center;
-    position: absolute; /* Vuelve a ser absoluto */
-    top: -0.8rem; /* Ajuste original */
-    left: 0.8rem; /* Ajuste original */
+    position: absolute;
+    /* *** MODIFICACIÓN AQUÍ: Ajuste de la posición 'top' y 'left' *** */
+    top: 0.25rem; /* Posiciona el eyebrow ligeramente dentro del padding superior */
+    left: 1rem; /* Ajusta 'left' para que el inicio esté a la misma altura que el padding del card */
     z-index: 10; /* Asegura que esté por encima de la tarjeta */
 }
 .day-specific-eyebrow span { /* Para el emoji */
@@ -429,7 +431,8 @@ body {
         padding-left: 0.8rem;
     }
     .medication-item {
-        padding: 0.8rem;
+        /* *** MODIFICACIÓN AQUÍ (móvil): Ajuste de padding-top para el eyebrow *** */
+        padding: 1.25rem 0.8rem 0.8rem; /* Ajustado para móvil, top 1.25rem */
         margin-bottom: 0.6rem;
     }
     .medication-name {
@@ -439,7 +442,8 @@ body {
         font-size: 0.8rem;
     }
     .medication-group-header {
-        padding: 0.8rem;
+        /* Se usa el mismo estilo que .medication-item, así que se beneficia del padding modificado */
+        padding: 1.25rem 0.8rem 0.8rem; /* Ajustado para móvil, top 1.25rem */
         margin-bottom: 0.6rem;
     }
     .medication-group-header .medication-name {
@@ -447,8 +451,9 @@ body {
     }
     .day-specific-eyebrow {
         font-size: 0.7rem; /* Ajuste para móvil */
-        top: -0.7rem; /* Vuelve al ajuste original para móvil */
-        left: 0.6rem; /* Vuelve al ajuste original para móvil */
+        /* *** MODIFICACIÓN AQUÍ (móvil): Ajuste de posición 'top' y 'left' *** */
+        top: 0.2rem; /* Pequeño ajuste para móvil */
+        left: 0.8rem; /* Pequeño ajuste para móvil */
         padding: 0.1rem 0.5rem;
     }
     .day-specific-eyebrow span {
