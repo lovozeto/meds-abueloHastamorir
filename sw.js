@@ -8,25 +8,25 @@ const CACHE_NAME = 'meds-pwa-cache-v2';
 // está en un subdirectorio (ej. /nombre-repo/).
 const urlsToCache = [
     // La URL raíz de tu aplicación en GitHub Pages (sin index.html si es la página por defecto)
-    '/meds-abueloHastamorir/',
+    '',
     // Archivos principales de la aplicación
-    '/meds-abueloHastamorir/index.html',
-    '/meds-abueloHastamorir/manifest.json',
-    '/meds-abueloHastamorir/sw.js',
-    '/meds-abueloHastamorir/style.css', // Tu CSS externo
-    '/meds-abueloHastamorir/app.js',     // Tu JS externo
-    '/meds-abueloHastamorir/offline.html', // Página de fallback offline
+    'index.html',
+    'manifest.json',
+    'sw.js',
+    'style.css', // Tu CSS externo
+    'app.js',     // Tu JS externo
+    'offline.html', // Página de fallback offline
 
     // Íconos de la PWA. Asegúrate de que existan en tu carpeta 'icons' dentro del repositorio.
-    '/meds-abueloHastamorir/icons/icon-72x72.png',
-    '/meds-abueloHastamorir/icons/icon-96x96.png',
-    '/meds-abueloHastamorir/icons/icon-128x128.png',
-    '/meds-abueloHastamorir/icons/icon-144x144.png',
-    '/meds-abueloHastamorir/icons/icon-152x152.png',
-    '/meds-abueloHastamorir/icons/icon-180x180.png', // Añadido para Apple Touch Icon
-    '/meds-abueloHastamorir/icons/icon-192x192.png',
-    '/meds-abueloHastamorir/icons/icon-384x384.png',
-    '/meds-abueloHastamorir/icons/icon-512x512.png',
+    'icons/icon-72x72.png',
+    'icons/icon-96x96.png',
+    'icons/icon-128x128.png',
+    'icons/icon-144x144.png',
+    'icons/icon-152x152.png',
+    'icons/icon-180x180.png', // Añadido para Apple Touch Icon
+    'icons/icon-192x192.png',
+    'icons/icon-384x384.png',
+    'icons/icon-512x512.png',
 
     // URLs de CDN utilizadas en index.html que deben ser cacheadas para el funcionamiento offline.
     // Aunque se cachean aquí, la mejor práctica para PWAs offline-first es auto-hospedar estos archivos
@@ -83,7 +83,7 @@ self.addEventListener('fetch', (event) => {
                         // intentamos servir una página de fallback offline desde el caché.
                         if (event.request.mode === 'navigate') {
                             console.log('Service Worker: Sirviendo página offline de fallback.');
-                            return caches.match('/meds-abueloHastamorir/offline.html');
+                            return caches.match('offline.html');
                         }
                         // Para otros tipos de recursos (imágenes, CSS, JS que no son HTML),
                         // si no están en caché y la red falla, simplemente rechazamos la promesa
