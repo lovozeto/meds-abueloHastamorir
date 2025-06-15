@@ -1,546 +1,928 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario de Medicamentos</title>
+    <!-- PWA Manifest - Asegúrate de que tu manifest.json esté en la misma carpeta -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Theme color for PWA - Define el color de la barra del navegador, se ajusta con el modo oscuro -->
+    <meta name="theme-color" content="#1A202C"> <!-- Color para el tema oscuro, cambiará en modo claro -->
 
-<!-- PWA Meta Tags -->
-<meta name="theme-color" content="#2563eb"/> <!-- blue-600 -->
-<link rel="apple-touch-icon" href="icons/icon-192x192.png">
-<link rel="manifest" href="manifest.json">
+    <!-- Tailwind CSS CDN para utilidades y sistema de diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter para una estética limpia y moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<title>Horario de Medicamentos Cenen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  html, body {
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden; /* This prevents horizontal scroll */
-  }
-  .time-block {
-    transition: all 0.3s ease-in-out;
-  }
-  /* Styles for the sticky header */
-  header {
-    transition: all 0.3s ease-in-out;
-  }
-  /* When header has 'scrolled' class */
-  header.scrolled {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-radius: 0;
-  }
-  header.scrolled #header-top-content {
-     align-items: center;
-  }
-  header.scrolled #header-title {
-      font-size: 1.125rem; /* text-lg */
-  }
-  header.scrolled #header-subtitle {
-     display: none;
-  }
-  header.scrolled #full-date {
-    display: none;
-  }
-  header.scrolled #short-date {
-    display: block;
-    font-size: 1.125rem; /* text-lg */
-  }
-  header.scrolled #current-time {
-    display: none;
-  }
-  header.scrolled #header-bottom-content {
-    display: none;
-  }
-</style>
-</head>
-<body class="bg-gray-100">
+    <style>
+        /* Variables CSS para el tema oscuro (por defecto, como en la imagen) */
+        :root {
+            --app-background: #000000; /* Negro puro para un fondo profundo */
+            /* Componentes con Glassmorphism usan bases RGB y luego RGBA para transparencia */
+            --header-background-base-rgb: 26, 32, 44; /* RGB de #1A202C */
+            --header-background: rgba(var(--header-background-base-rgb), 0.7); /* Header con transparencia */
+            --header-text: #FFFFFF; /* Texto blanco en el header */
 
-<div class="container mx-auto max-w-2xl p-0 sm:p-4">
-  <header id="main-header" class="bg-blue-600 text-white p-4 sm:p-6 sm:rounded-t-xl shadow-lg sticky top-0 z-20">
-    <div id="header-top-content" class="flex justify-between items-start transition-all duration-300">
-        <!-- Left Side -->
-        <div>
-            <h1 id="header-title" class="text-xl md:text-2xl font-bold transition-all duration-300">Horario de Medicamentos</h1>
-            <p id="header-subtitle" class="text-sm opacity-90 transition-all duration-300">Cenen</p>
-        </div>
-        <!-- Right Side -->
-        <div class="text-right">
-            <div id="full-date" class="transition-all duration-300">
-                <p id="current-date" class="font-semibold text-xs md:text-sm"></p>
-                <p id="current-time" class="font-bold text-lg md:text-2xl"></p>
-            </div>
-            <div id="short-date" class="hidden font-bold transition-all duration-300">
-                 <p id="short-day-name"></p>
-            </div>
-        </div>
-    </div>
-    <!-- Notification button remains below this flex container -->
-    <div id="header-bottom-content" class="text-center mt-4 border-t border-blue-500 pt-4 transition-all duration-300">
-        <button id="setup-reminders-btn" class="bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-100 transition-colors">
-            Activar Recordatorios 🔔
-        </button>
-        <p id="notification-status" class="text-xs mt-2 h-4"></p>
-    </div>
-</header>
+            --text-primary: #F5F5F7; /* Blanco grisáceo para texto principal */
+            --text-secondary: #8E8E93; /* Gris medio para texto secundario/detalles */
+            --accent-blue: #0A84FF; /* Azul vibrante para acentos y enlaces */
 
-  <main class="bg-white sm:rounded-b-xl shadow-lg">
-    <!-- Schedule starts here -->
-    
-    <div id="block-0600" data-time="06:00" class="time-block flex items-start p-4 border-b border-gray-200">
-      <div class="w-24 flex-shrink-0 text-right pr-4">
-        <span class="text-lg font-semibold text-blue-600">6:00 am</span>
-        <div class="chip-container mt-1"></div>
-      </div>
-      <div class="flex-grow border-l border-gray-200 pl-4 space-y-4">
-        <div>
-          <p class="font-bold text-gray-800">Aciclovir Genfar</p>
-          <p class="text-sm text-gray-500">Antiviral (Dosis 1 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Hioscina N-butilbromo</p>
-          <p class="text-sm text-gray-500">Antiespasmódico (Dosis 1 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Acetaminofen</p>
-          <p class="text-sm text-gray-500">Analgésico (Dosis 1 de 3)</p>
-          <div class="mt-2 p-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-xs rounded-r-lg">
-            🤔 Opcional si hay dolor
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div id="block-0830" data-time="08:30" class="time-block flex items-start p-4 border-b border-gray-200">
-        <div class="w-24 flex-shrink-0 text-right pr-4">
-            <span class="text-lg font-semibold text-blue-600">8:30 am</span>
-            <div class="chip-container mt-1"></div>
-        </div>
-        <div class="flex-grow border-l border-gray-200 pl-4">
-            <p class="font-bold text-gray-800">Albisan (Sulfato Oral)</p>
-            <p class="text-sm text-gray-500">Lavado bucal</p>
-            <div class="mt-2 p-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-xs rounded-r-lg">
-                🦷 Antes del desayuno
-            </div>
-        </div>
-    </div>
+            --card-background-base-rgb: 28, 28, 30; /* RGB de #1C1C1E */
+            --card-background: rgba(var(--card-background-base-rgb), 0.6); /* Tarjetas con transparencia */
+            --card-border: #3A3A3C; /* Borde sutil y más oscuro para las tarjetas */
+            --separator-line: #4A4A4C; /* Gris oscuro para la línea vertical */
 
-    <div id="block-0900" data-time="09:00" class="time-block flex items-start p-4 border-b border-gray-200">
-      <div class="w-24 flex-shrink-0 text-right pr-4">
-        <span class="text-lg font-semibold text-blue-600">9:00 am</span>
-        <div class="chip-container mt-1"></div>
-      </div>
-      <div class="flex-grow border-l border-gray-200 pl-4 space-y-4">
-        <div>
-          <p class="font-bold text-gray-800">Medicamentos de la mañana</p>
-          <p class="text-sm text-gray-500">Tomar todos juntos con el desayuno</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-            <p class="font-bold text-gray-800">Apixaban (Eliquis)</p>
-            <p class="text-sm text-gray-500">Anticoagulante (Dosis 1 de 2)</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Omeprazol (Esomeprazol)</p>
-            <p class="text-sm text-gray-500">Protector gástrico</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Sitagliptina + Metformina (Janumet)</p>
-            <p class="text-sm text-gray-500">Antidiabético (Dosis 1 de 2)</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Alopurinol (Zyloprim)</p>
-            <p class="text-sm text-gray-500">Ácido úrico</p>
-        </div>
-         <div>
-            <p class="font-bold text-gray-800">Colchicina (Colchimedio)</p>
-            <p class="text-sm text-gray-500">Gota</p>
-        </div>
-         <div>
-            <p class="font-bold text-gray-800">Metoprolol Succinato (Betaloc ZOK)</p>
-            <p class="text-sm text-gray-500">Antihipertensivo</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Tiotropio (Spiriva Respimat)</p>
-            <p class="text-sm text-gray-500">Broncodilatador</p>
-        </div>
-         <div>
-            <p class="font-bold text-gray-800">Amlodipino</p>
-            <p class="text-sm text-gray-500">Antihipertensivo</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4" data-days="1,3,5">
-            <p class="font-bold text-gray-800">Trimetoprim</p>
-            <p class="text-sm text-gray-500">Antibiótico</p>
-            <div class="mt-2 p-2 bg-red-100 border-l-4 border-red-500 text-red-800 text-xs rounded-r-lg">
-                🚨 Lunes, Miércoles y Viernes
-            </div>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-            <p class="font-bold text-gray-800">Lactulosa (Constilax)</p>
-            <p class="text-sm text-gray-500">Laxante</p>
-             <div class="mt-2 p-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-xs rounded-r-lg">
-                🤔 Solo si hay estreñimiento
-            </div>
-        </div>
-      </div>
-    </div>
-    
-    <div id="block-1230" data-time="12:30" class="time-block flex items-start p-4 border-b border-gray-200">
-        <div class="w-24 flex-shrink-0 text-right pr-4">
-            <span class="text-lg font-semibold text-blue-600">12:30 pm</span>
-            <div class="chip-container mt-1"></div>
-        </div>
-        <div class="flex-grow border-l border-gray-200 pl-4">
-            <p class="font-bold text-gray-800">Albisan (Sulfato Oral)</p>
-            <p class="text-sm text-gray-500">Lavado bucal</p>
-            <div class="mt-2 p-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-xs rounded-r-lg">
-                🦷 Antes del almuerzo
-            </div>
-        </div>
-    </div>
+            /* Colores para las notas/etiquetas (tags) */
+            --note-background-next: #0A2E5B; /* Azul oscuro para "Próximo" */
+            --note-text-next: #6AA3EC; /* Azul claro para texto de "Próximo" */
+            --note-background-optional: #4D3D10; /* Marrón oscuro para "Opcional" */
+            --note-text-optional: #FDC700; /* Amarillo para texto de "Opcional" */
+            --note-background-meal: #0E4E30; /* Verde oscuro para "Con el almuerzo" / "Antes de la cena" */
+            --note-text-meal: #77D3A6; /* Verde claro para texto de "Con el almuerzo" */
+            --note-background-tooth: #0A4F6B; /* Azul verdoso oscuro para "Diente" */
+            --note-text-tooth: #87CEEB; /* Azul claro para texto de "Diente" */
+            --note-background-day-specific: #29292B; /* Gris muy oscuro para el eyebrow de días */
+            --note-text-day-specific: #C7C7CC; /* Gris claro para texto de días */
+            --note-background-no-take: #6A0000; /* Rojo oscuro para "Hoy no se toma" */
+            --note-text-no-take: #FF453A; /* Rojo vibrante para texto de "Hoy no se toma" */
+            --note-background-glucometer: #0A3D5B; /* Azul oscuro para "Medir con glucómetro" */
+            --note-text-glucometer: #87CEEB; /* Azul claro para texto de "Medir con glucómetro" */
 
-    <div id="block-1400" data-time="14:00" class="time-block flex items-start p-4 border-b border-gray-200">
-      <div class="w-24 flex-shrink-0 text-right pr-4">
-        <span class="text-lg font-semibold text-blue-600">2:00 pm</span>
-        <div class="chip-container mt-1"></div>
-      </div>
-      <div class="flex-grow border-l border-gray-200 pl-4 space-y-4">
-        <div>
-          <p class="font-bold text-gray-800">Aciclovir Genfar</p>
-          <p class="text-sm text-gray-500">Antiviral (Dosis 2 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Hioscina N-butilbromo</p>
-          <p class="text-sm text-gray-500">Antiespasmódico (Dosis 2 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Acetaminofen</p>
-          <p class="text-sm text-gray-500">Analgésico (Dosis 2 de 3)</p>
-          <div class="mt-2 p-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-xs rounded-r-lg">
-            🤔 Opcional si hay dolor
-          </div>
-        </div>
-         <div class="border-t border-gray-200 pt-4">
-            <p class="font-bold text-gray-800">Vitamina D3</p>
-            <p class="text-sm text-gray-500">Vitamina</p>
-            <div class="mt-2 p-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-xs rounded-r-lg">
-                🥗 Con el almuerzo
-            </div>
-        </div>
-      </div>
-    </div>
-    
-    <div id="block-1930" data-time="19:30" class="time-block flex items-start p-4 border-b border-gray-200">
-        <div class="w-24 flex-shrink-0 text-right pr-4">
-            <span class="text-lg font-semibold text-blue-600">7:30 pm</span>
-            <div class="chip-container mt-1"></div>
-        </div>
-        <div class="flex-grow border-l border-gray-200 pl-4">
-            <p class="font-bold text-gray-800">Albisan (Sulfato Oral)</p>
-            <p class="text-sm text-gray-500">Lavado bucal</p>
-            <div class="mt-2 p-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-xs rounded-r-lg">
-                🦷 Antes de la cena
-            </div>
-        </div>
-    </div>
-    
-    <div id="block-2100" data-time="21:00" class="time-block flex items-start p-4 border-b border-gray-200">
-      <div class="w-24 flex-shrink-0 text-right pr-4">
-        <span class="text-lg font-semibold text-blue-600">9:00 pm</span>
-        <div class="chip-container mt-1"></div>
-      </div>
-      <div class="flex-grow border-l border-gray-200 pl-4 space-y-4">
-        <div>
-            <p class="font-bold text-gray-800">Medicamentos de la noche</p>
-            <p class="text-sm text-gray-500">Tomar todos juntos con la cena</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-            <p class="font-bold text-gray-800">Apixaban (Eliquis)</p>
-            <p class="text-sm text-gray-500">Anticoagulante (Dosis 2 de 2)</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Sitagliptina + Metformina (Janumet)</p>
-            <p class="text-sm text-gray-500">Antidiabético (Dosis 2 de 2)</p>
-        </div>
-        <div>
-            <p class="font-bold text-gray-800">Trelegy</p>
-            <p class="text-sm text-gray-500">Broncodilatador</p>
-        </div>
-      </div>
-    </div>
-    
-    <div id="block-2200" data-time="22:00" class="time-block flex items-start p-4 border-b border-gray-200">
-      <div class="w-24 flex-shrink-0 text-right pr-4">
-        <span class="text-lg font-semibold text-blue-600">10:00 pm</span>
-        <div class="chip-container mt-1"></div>
-      </div>
-      <div class="flex-grow border-l border-gray-200 pl-4 space-y-4">
-        <div>
-          <p class="font-bold text-gray-800">Aciclovir Genfar</p>
-          <p class="text-sm text-gray-500">Antiviral (Dosis 3 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Hioscina N-butilbromo</p>
-          <p class="text-sm text-gray-500">Antiespasmódico (Dosis 3 de 3)</p>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="font-bold text-gray-800">Acetaminofen</p>
-          <p class="text-sm text-gray-500">Analgésico (Dosis 3 de 3)</p>
-          <div class="mt-2 p-2 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-xs rounded-r-lg">
-            🤔 Opcional si hay dolor
-          </div>
-        </div>
-        <div class="border-t border-gray-200 pt-4">
-            <p class="font-bold text-gray-800">Insulina Glargina</p>
-            <p class="text-sm text-gray-500">Control de glucosa</p>
-            <div class="mt-2 p-2 bg-green-100 border-l-4 border-green-400 text-green-800 text-xs rounded-r-lg">
-                🌙 Después de la última comida
-            </div>
-        </div>
-      </div>
-    </div>
-  </main>
+            /* Botones y otros elementos */
+            --button-on-header-bg-base-rgb: 41, 41, 43; /* RGB de #29292B */
+            --button-on-header-bg: rgba(var(--button-on-header-bg-base-rgb), 0.7);
+            --button-on-header-text: #FFFFFF;
+            --button-on-header-border: #3A3A3C;
 
-</div>
-
-<script>
-  // --- UI LOGIC ---
-  function updateDateTime() {
-      const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-
-      // Format Date
-      const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-      let formattedDate = new Intl.DateTimeFormat('es-CO', dateOptions).format(now);
-      formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-      document.getElementById('current-date').textContent = formattedDate;
-
-       // Format short day name for scrolled header
-      const shortDateOptions = { weekday: 'long' };
-      let shortDay = new Intl.DateTimeFormat('es-CO', shortDateOptions).format(now);
-      document.getElementById('short-day-name').textContent = shortDay.charAt(0).toUpperCase() + shortDay.slice(1);
-
-      // Format Time without seconds
-      const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-      const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
-      document.getElementById('current-time').textContent = formattedTime;
-  }
-
-  function updateMedicationStatusUI() {
-    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-    const currentDay = now.getDay(); // Sunday - 0, Monday - 1, ...
-    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-    const timeBlocks = document.querySelectorAll('.time-block');
-    let nextMedBlock = null;
-
-    // Find the very first block for today whose time is after the current time
-    for (const block of timeBlocks) {
-      const [hours, minutes] = block.dataset.time.split(':').map(Number);
-      const blockTimeInMinutes = hours * 60 + minutes;
-      if (blockTimeInMinutes >= currentTimeInMinutes) {
-        nextMedBlock = block;
-        break; 
-      }
-    }
-    
-    // If no upcoming meds are found for today, next med is the first one tomorrow
-    if (!nextMedBlock && timeBlocks.length > 0) {
-      nextMedBlock = timeBlocks[0];
-    }
-    
-    // --- VISUAL UPDATE LOGIC ---
-    timeBlocks.forEach(block => {
-        // Reset styles for all blocks
-        block.classList.remove('scale-105', 'shadow-xl', 'relative', 'z-10', 'bg-white');
-        const chipContainer = block.querySelector('.chip-container');
-        if (chipContainer) chipContainer.innerHTML = '';
-
-        const [hours, minutes] = block.dataset.time.split(':').map(Number);
-        const blockTimeInMinutes = hours * 60 + minutes;
-
-        if (blockTimeInMinutes < currentTimeInMinutes) {
-            block.classList.add('opacity-40');
-        } else {
-            block.classList.remove('opacity-40');
+            /* Colores para el resaltado del slot "Próximo" */
+            --next-slot-line-highlight: #0A84FF; /* Azul vibrante */
+            --next-slot-time-highlight: #FFFFFF; /* Hora en blanco puro */
         }
 
-        // Check for day-specific medications
-        const daySpecificMeds = block.querySelectorAll('[data-days]');
-        daySpecificMeds.forEach(medDiv => {
-            const allowedDays = medDiv.dataset.days.split(',').map(Number);
-            const medText = medDiv.querySelector('.font-bold');
-            if (!allowedDays.includes(currentDay)) {
-                medDiv.classList.add('line-through', 'text-gray-400', 'opacity-75');
+        /* Variables CSS para el tema claro */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --app-background: #F5F5F7; /* Gris muy claro para el fondo */
+                --header-background-base-rgb: 255, 255, 255; /* RGB de #FFFFFF */
+                --header-background: rgba(var(--header-background-base-rgb), 0.8); /* Header con transparencia */
+                --header-text: #1D1D1F; /* Negro para texto del header */
+
+                --text-primary: #1D1D1F; /* Negro para texto principal */
+                --text-secondary: #6E6E73; /* Gris oscuro para texto secundario */
+                --accent-blue: #007AFF; /* Azul estándar de Apple para acentos */
+
+                --card-background-base-rgb: 255, 255, 255; /* RGB de #FFFFFF */
+                --card-background: rgba(var(--card-background-base-rgb), 0.7); /* Tarjetas con transparencia */
+                --card-border: #E5E5EA; /* Gris claro para borde de tarjetas */
+                --separator-line: #E5E5EA; /* Gris claro para la línea vertical */
+
+                /* Colores para las notas/etiquetas (tags) en modo claro */
+                --note-background-next: #E0F2FF; /* Azul muy claro para "Próximo" */
+                --note-text-next: #007AFF; /* Azul oscuro para texto de "Próximo" */
+                --note-background-optional: #FFFBEB; /* Amarillo muy claro para "Opcional" */
+                --note-text-optional: #B8860B; /* Marrón para texto de "Opcional" */
+                --note-background-meal: #E6FFFA; /* Verde muy claro para "Con el almuerzo" */
+                --note-text-meal: #228B22; /* Verde oscuro para texto de "Con el almuerzo" */
+                --note-background-tooth: #E6F8FF; /* Azul verdoso muy claro para "Diente" */
+                --note-text-tooth: #007AFF; /* Azul oscuro para texto de "Diente" */
+                --note-background-day-specific: #F0F0F0; /* Gris claro para el eyebrow de días */
+                --note-text-day-specific: #6E6E73; /* Gris oscuro para texto de días */
+                --note-background-no-take: #FFECEC; /* Rojo muy claro para "Hoy no se toma" */
+                --note-text-no-take: #FF3B30; /* Rojo vibrante para texto de "Hoy no se toma" */
+                --note-background-glucometer: #E0F2FF; /* Azul claro para "Medir con glucómetro" */
+                --note-text-glucometer: #007AFF; /* Azul oscuro para texto de "Medir con glucómetro" */
+
+                /* Botones y otros elementos en modo claro */
+                --button-on-header-bg-base-rgb: 240, 240, 240; /* RGB de #F0F0F0 */
+                --button-on-header-bg: rgba(var(--button-on-header-bg-base-rgb), 0.8);
+                --button-on-header-text: #1D1D1F;
+                --button-on-header-border: #D1D1D6;
+
+                /* Colores para el resaltado del slot "Próximo" en modo claro */
+                --next-slot-line-highlight: #007AFF; /* Azul estándar de Apple */
+                --next-slot-time-highlight: #1D1D1F; /* Hora en negro */
+            }
+        }
+
+        /* Estilos base del cuerpo y transiciones para el cambio de tema */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--app-background);
+            color: var(--text-primary);
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Estilos generales para el contenedor principal */
+        .container {
+            padding: 1rem; /* Espaciado general en los bordes */
+        }
+        @media (min-width: 640px) {
+            .container {
+                padding: 2rem;
+            }
+        }
+
+        /* Estilos del Encabezado (Header) con Glassmorphism */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Alto z-index para que esté siempre visible */
+            background-color: var(--header-background); /* Fondo RGBA */
+            backdrop-filter: saturate(180%) blur(20px); /* Efecto de desenfoque y saturación */
+            -webkit-backdrop-filter: saturate(180%) blur(20px); /* Compatibilidad Webkit */
+            color: var(--header-text);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); /* Sombra suave y profunda */
+            padding: 1.5rem 1.25rem 0.5rem; /* Relleno inicial */
+            display: grid;
+            grid-template-columns: 1fr auto; /* Dos columnas para título/subtítulo y fecha/hora */
+            grid-template-rows: auto auto; /* Dos filas para elementos del grid */
+            gap: 0.5rem 1rem; /* Espacio entre elementos del grid */
+            align-items: center;
+            border-bottom: 1px solid rgba(var(--header-background-base-rgb), 0.15); /* Borde más sutil */
+        }
+
+        .header-left {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .header-right {
+            grid-column: 2;
+            grid-row: 1;
+            text-align: right;
+            font-size: 0.875rem; /* text-sm */
+            color: var(--header-text); /* Asegura que la fecha tenga el color del header */
+            line-height: 1.2;
+        }
+
+        .header-title {
+            font-size: 1.75rem; /* text-3xl de Tailwind */
+            font-weight: 700; /* font-bold */
+            transition: font-size 0.3s ease-in-out;
+        }
+
+        .header-subtitle {
+            font-size: 1rem; /* text-base */
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7); /* Ligeramente más transparente */
+            transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+            display: block;
+        }
+
+        .header-full-date-time {
+            display: block; /* Muestra por defecto */
+        }
+        .header-scrolled-date-time {
+            display: none; /* Oculta por defecto */
+            font-weight: 500;
+            white-space: nowrap; /* Evita que se rompa la línea */
+        }
+
+        .header-button {
+            grid-column: 1 / span 2; /* Ocupa ambas columnas */
+            grid-row: 2;
+            background-color: var(--button-on-header-bg); /* Fondo RGBA */
+            color: var(--button-on-header-text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content; /* Se ajusta al contenido */
+            margin: 0.5rem auto 1rem; /* Centrado y con margen */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave para el botón */
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            border: 1px solid var(--button-on-header-border); /* Borde sutil */
+            backdrop-filter: saturate(180%) blur(10px); /* Glassmorphism para el botón */
+            -webkit-backdrop-filter: saturate(180%) blur(10px);
+        }
+        .header-button:active {
+            transform: scale(0.98); /* Efecto de clic */
+        }
+
+
+        /* Estilos del Header al hacer scroll */
+        .header.scrolled {
+            padding: 0.5rem 1.25rem; /* Relleno menor */
+            grid-template-rows: auto; /* Una sola fila */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra más intensa al hacer scroll */
+        }
+
+        .header.scrolled .header-title {
+            font-size: 1.25rem; /* text-xl */
+        }
+
+        .header.scrolled .header-subtitle,
+        .header.scrolled .header-button {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none; /* Deshabilita clics */
+            margin: 0;
+            padding: 0;
+        }
+
+        .header.scrolled .header-full-date-time {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            display: none;
+        }
+        .header.scrolled .header-scrolled-date-time {
+            display: inline-block; /* Muestra el texto corto */
+            opacity: 1;
+            transform: translateY(0);
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.2;
+            color: var(--header-text); /* Asegura el color adecuado al hacer scroll */
+        }
+
+        /* Diseño de la lista de medicamentos */
+        .medication-day-section {
+            padding-top: 1.5rem; /* Espacio superior para compensar el header sticky */
+        }
+
+        .time-slot {
+            display: flex;
+            margin-bottom: 0;
+            padding-bottom: 1.5rem; /* Espacio al final de cada slot */
+            transition: background-color 0.4s ease; /* Transición para el fondo del slot */
+        }
+
+        .time-indicator {
+            flex-shrink: 0;
+            width: 85px; /* Ancho fijo para la columna de la hora */
+            text-align: right;
+            padding-right: 1.25rem;
+            padding-top: 0.3rem; /* Alineación vertical con el contenido */
+            /* Se revierte la posición sticky */
+            position: relative; /* Vuelve a ser relative */
+            z-index: auto; /* Vuelve a auto */
+            color: var(--text-secondary); /* Color secundario para la hora */
+            font-weight: 500;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            transition: color 0.4s ease; /* Transición para el color de la hora */
+            /* Se quitan los estilos de fondo y padding específicos */
+            /* background-color: transparent; */
+            /* backdrop-filter: none; */
+            /* -webkit-backdrop-filter: none; */
+            /* padding-top: 0.3rem; */
+            /* padding-bottom: 0.3rem; */
+        }
+
+        .time-slot.is-next .time-indicator {
+            color: var(--next-slot-time-highlight); /* Hora en blanco cuando es el siguiente */
+            font-weight: 600; /* Más audaz */
+        }
+
+        .next-indicator {
+            display: inline-flex; /* Usar flex para alinear emoji y texto */
+            align-items: center;
+            margin-top: 0.25rem;
+            font-size: 0.75rem; /* Aumentado */
+            font-weight: 600;
+            background-color: var(--note-background-next);
+            color: var(--note-text-next);
+            padding: 0.2rem 0.6rem; /* Aumentado */
+            border-radius: 9999px; /* Totalmente redondeado (pill shape) */
+        }
+
+
+        .medication-list {
+            flex-grow: 1; /* Ocupa el espacio restante */
+            padding-left: 1.25rem;
+            border-left: 1px solid var(--separator-line); /* Línea vertical sutil */
+            padding-top: 0;
+            transition: border-left-color 0.4s ease, border-left-width 0.4s ease; /* Transición para el color y grosor de la línea */
+        }
+
+        .time-slot.is-next .medication-list {
+            border-left-color: var(--next-slot-line-highlight); /* Línea azul vibrante */
+            border-left-width: 3px; /* Línea más gruesa */
+        }
+
+
+        /* Estilos de las tarjetas de medicamentos con Glassmorphism */
+        .medication-item,
+        .medication-group-header {
+            background-color: var(--card-background); /* Fondo RGBA */
+            backdrop-filter: saturate(180%) blur(10px); /* Efecto de desenfoque y saturación para tarjetas */
+            -webkit-backdrop-filter: saturate(180%) blur(10px);
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1rem;
+            margin-bottom: 0.75rem; /* Espacio entre items */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Sombra suave para las tarjetas */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--card-border); /* Borde sutil */
+            position: relative; /* Necesario para posicionar el eyebrow */
+        }
+        .medication-item:last-child {
+            margin-bottom: 0; /* No margen en el último item de cada lista */
+        }
+
+        .medication-name {
+            font-size: 1rem; /* text-base */
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            transition: text-decoration 0.3s ease, color 0.3s ease; /* Transición para el tachado y color */
+        }
+        .medication-name.strikethrough {
+            text-decoration: line-through;
+            color: var(--text-secondary); /* Color más tenue cuando está tachado */
+        }
+
+        .medication-detail {
+            font-size: 0.875rem; /* text-sm */
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        .medication-group-header .medication-name {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .medication-group-header .medication-detail {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Estilos generales para notas (tags) */
+        .note-text {
+            padding: 0.25rem 0.75rem; /* Aumentado */
+            border-radius: 0.6rem; /* Aumentado */
+            font-size: 0.8rem; /* Aumentado */
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: inline-flex; /* Cambiado a inline-flex para alinear emoji y texto */
+            align-items: center;
+            line-height: 1.2;
+        }
+        .note-text span { /* Para el emoji */
+            margin-right: 0.25rem;
+            font-size: 0.9rem; /* Ajuste para el tamaño del emoji */
+        }
+
+
+        /* Estilos específicos para cada tipo de nota */
+        .optional-note .note-text {
+            background-color: var(--note-background-optional);
+            color: var(--note-text-optional);
+        }
+
+        .meal-note .note-text { /* Incluye "Antes del desayuno" y "Con el almuerzo" */
+            background-color: var(--note-background-meal);
+            color: var(--note-text-meal);
+        }
+
+        .glucometer-note .note-text {
+            background-color: var(--note-background-glucometer);
+            color: var(--note-text-glucometer);
+        }
+
+
+        /* Estilos para el eyebrow de días específicos (Vuelve a flotar) */
+        .day-specific-eyebrow {
+            font-size: 0.75rem; /* Aumentado */
+            font-weight: 500;
+            color: var(--note-text-day-specific);
+            background-color: var(--note-background-day-specific);
+            padding: 0.15rem 0.6rem; /* Aumentado */
+            border-radius: 0.4rem; /* Aumentado */
+            /* margin-bottom: 0.5rem; REMOVIDO */
+            display: inline-flex;
+            align-items: center;
+            position: absolute; /* Vuelve a ser absoluto */
+            top: -0.8rem; /* Ajuste original */
+            left: 0.8rem; /* Ajuste original */
+            z-index: 10; /* Asegura que esté por encima de la tarjeta */
+        }
+        .day-specific-eyebrow span { /* Para el emoji */
+            margin-right: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        /* Estilo para el chip "Hoy no se toma" */
+        .no-take-chip {
+            background-color: var(--note-background-no-take);
+            color: var(--note-text-no-take);
+            padding: 0.25rem 0.75rem; /* Aumentado */
+            border-radius: 0.6rem; /* Aumentado */
+            font-size: 0.8rem; /* Aumentado */
+            font-weight: 500;
+            display: inline-flex; /* Cambiado a inline-flex para alinear emoji y texto */
+            align-items: center;
+            margin-left: 0.5rem; /* Espacio a la izquierda del nombre del medicamento */
+            line-height: 1.2;
+        }
+        .no-take-chip span { /* Para el emoji */
+            margin-right: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+
+        /* Ajustes responsivos para dispositivos pequeños */
+        @media (max-width: 640px) {
+            .header {
+                padding: 1.25rem 1rem 0.5rem;
+                gap: 0.4rem 0.8rem;
+            }
+            .header.scrolled {
+                padding: 0.4rem 1rem;
+            }
+            .header-title {
+                font-size: 1.3rem;
+            }
+            .header.scrolled .header-title {
+                font-size: 1.05rem;
+            }
+            .header-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            .time-indicator {
+                width: 75px; /* Ancho menor en móviles */
+                font-size: 0.85rem;
+                padding-right: 0.8rem;
+            }
+            .medication-list {
+                padding-left: 0.8rem;
+            }
+            .medication-item {
+                padding: 0.8rem;
+                margin-bottom: 0.6rem;
+            }
+            .medication-name {
+                font-size: 0.95rem;
+            }
+            .medication-detail {
+                font-size: 0.8rem;
+            }
+            .medication-group-header {
+                padding: 0.8rem;
+                margin-bottom: 0.6rem;
+            }
+            .medication-group-header .medication-name {
+                font-size: 1rem;
+            }
+            .day-specific-eyebrow {
+                font-size: 0.7rem; /* Ajuste para móvil */
+                top: -0.7rem; /* Vuelve al ajuste original para móvil */
+                left: 0.6rem; /* Vuelve al ajuste original para móvil */
+                padding: 0.1rem 0.5rem;
+            }
+            .day-specific-eyebrow span {
+                font-size: 0.75rem;
+            }
+            .no-take-chip {
+                font-size: 0.7rem; /* Ajuste para móvil */
+                padding: 0.2rem 0.6rem;
+            }
+            .no-take-chip span {
+                font-size: 0.8rem;
+            }
+            .note-text {
+                font-size: 0.7rem; /* Ajuste para móvil */
+                padding: 0.2rem 0.6rem;
+            }
+            .note-text span {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="mainHeader" class="header">
+        <div class="header-left">
+            <h1 class="header-title">Horario de Medicamentos</h1>
+            <span class="header-subtitle">Cenén</span>
+        </div>
+        <div class="header-right">
+            <span id="fullDate" class="header-full-date-time text-white/90 font-medium"></span><br class="header-full-date-time">
+            <span id="fullTime" class="header-full-date-time text-white/80 font-normal text-sm"></span>
+            <span id="scrolledDateTime" class="header-scrolled-date-time"></span>
+        </div>
+        <button id="addCalendarButton" class="header-button">
+            Añadir al Calendario (iOS) <span class="ml-2">🗓️</span>
+        </button>
+    </header>
+
+    <main class="container mx-auto max-w-2xl"> <!-- Limita el ancho del contenido para mejor legibilidad -->
+        <section class="medication-day-section">
+            <!-- Bloque de 6:00 AM -->
+            <div class="time-slot" data-time="06:00">
+                <div class="time-indicator">
+                    <span class="time-text">6:00 am</span>
+                    <span class="next-indicator">Próximo</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item">
+                        <h3 class="medication-name">Aciclovir Genfar</h3>
+                        <p class="medication-detail">Antiviral (Dosis 1 de 3)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
+                        <p class="medication-detail">Antiespasmódico (Dosis 1 de 3)</p>
+                    </div>
+                    <div class="medication-item optional-note">
+                        <h3 class="medication-name">Acetaminofen</h3>
+                        <p class="medication-detail">Analgésico (Dosis 1 de 3)</p>
+                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 8:30 AM -->
+            <div class="time-slot" data-time="08:30">
+                <div class="time-indicator">
+                    <span class="time-text">8:30 am</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item meal-note tooth-icon">
+                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
+                        <p class="medication-detail">Lavado bucal</p>
+                        <p class="note-text"><span>🦷</span> Antes del desayuno</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 9:00 AM -->
+            <div class="time-slot" data-time="09:00">
+                <div class="time-indicator">
+                    <span class="time-text">9:00 am</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-group-header">
+                        <h3 class="medication-name">Medicamentos de la mañana</h3>
+                        <p class="medication-detail">Tomar todos juntos con el desayuno</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Apixaban (Eliquis)</h3>
+                        <p class="medication-detail">Anticoagulante (Dosis 1 de 2)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Omeprazol (Esomeprazol)</h3>
+                        <p class="medication-detail">Protector gástrico</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Sitagliptina + Metformina (Janumet)</h3>
+                        <p class="medication-detail">Antidiabético (Dosis 1 de 2)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Alopurinol (Zyloprim)</h3>
+                        <p class="medication-detail">Ácido úrico</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Colchicina (Colchimedio)</h3>
+                        <p class="medication-detail">Gota</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Metoprolol Succinato (Betaloc ZOK)</h3>
+                        <p class="medication-detail">Antihipertensivo</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Tiotropio (Spiriva Respimat)</h3>
+                        <p class="medication-detail">Broncodilatador</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Amlodipino</h3>
+                        <p class="medication-detail">Antihipertensivo</p>
+                    </div>
+                    <div class="medication-item" data-days="lunes,miercoles,viernes">
+                        <span class="day-specific-eyebrow hidden"><span>🗓️</span></span> <!-- Este span será llenado por JS -->
+                        <h3 class="medication-name">Trimetoprim</h3>
+                        <p class="medication-detail">Antibiótico</p>
+                    </div>
+                    <div class="medication-item optional-note">
+                        <h3 class="medication-name">Lactulosa (Constilax)</h3>
+                        <p class="medication-detail">Laxante</p>
+                        <p class="note-text"><span>⚠️</span> Solo si hay estreñimiento</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 12:30 PM -->
+            <div class="time-slot" data-time="12:30">
+                <div class="time-indicator">
+                    <span class="time-text">12:30 pm</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item meal-note tooth-icon">
+                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
+                        <p class="medication-detail">Lavado bucal</p>
+                        <p class="note-text"><span>🦷</span> Antes del almuerzo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 2:00 PM -->
+            <div class="time-slot" data-time="14:00">
+                <div class="time-indicator">
+                    <span class="time-text">2:00 pm</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item">
+                        <h3 class="medication-name">Aciclovir Genfar</h3>
+                        <p class="medication-detail">Antiviral (Dosis 2 de 3)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
+                        <p class="medication-detail">Antiespasmódico (Dosis 2 de 3)</p>
+                    </div>
+                    <div class="medication-item optional-note">
+                        <h3 class="medication-name">Acetaminofen</h3>
+                        <p class="medication-detail">Analgésico (Dosis 2 de 3)</p>
+                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
+                    </div>
+                    <div class="medication-item meal-note">
+                        <h3 class="medication-name">Vitamina D3</h3>
+                        <p class="medication-detail">Vitamina</p>
+                        <p class="note-text"><span>🍽️</span> Con el almuerzo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 7:30 PM -->
+            <div class="time-slot" data-time="19:30">
+                <div class="time-indicator">
+                    <span class="time-text">7:30 pm</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item meal-note tooth-icon">
+                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
+                        <p class="medication-detail">Lavado bucal</p>
+                        <p class="note-text"><span>🦷</span> Antes de la cena</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 9:00 PM -->
+            <div class="time-slot" data-time="21:00">
+                <div class="time-indicator">
+                    <span class="time-text">9:00 pm</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-group-header">
+                        <h3 class="medication-name">Medicamentos de la noche</h3>
+                        <p class="medication-detail">Tomar todos juntos con la cena</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Apixaban (Eliquis)</h3>
+                        <p class="medication-detail">Anticoagulante (Dosis 2 de 2)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Sitagliptina + Metformina (Janumet)</h3>
+                        <p class="medication-detail">Antidiabético (Dosis 2 de 2)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Trelegy</h3>
+                        <p class="medication-detail">Broncodilatador</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque de 10:00 PM -->
+            <div class="time-slot" data-time="22:00">
+                <div class="time-indicator">
+                    <span class="time-text">10:00 pm</span>
+                </div>
+                <div class="medication-list">
+                    <div class="medication-item">
+                        <h3 class="medication-name">Aciclovir Genfar</h3>
+                        <p class="medication-detail">Antiviral (Dosis 3 de 3)</p>
+                    </div>
+                    <div class="medication-item">
+                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
+                        <p class="medication-detail">Antiespasmódico (Dosis 3 de 3)</p>
+                    </div>
+                    <div class="medication-item optional-note">
+                        <h3 class="medication-name">Acetaminofen</h3>
+                        <p class="medication-detail">Analgésico (Dosis 3 de 3)</p>
+                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
+                    </div>
+                    <div class="medication-item glucometer-note">
+                        <h3 class="medication-name">Insulina Glargina</h3>
+                        <p class="medication-detail">Control de glucosa</p>
+                        <p class="note-text"><span>📊</span> Medir con glucómetro antes de aplicar</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // JavaScript para el encabezado pegajoso y la actualización de fecha/hora
+        const header = document.getElementById('mainHeader');
+        const fullDateSpan = document.getElementById('fullDate');
+        const fullTimeSpan = document.getElementById('fullTime');
+        const scrolledDateTimeSpan = document.getElementById('scrolledDateTime');
+        const addCalendarButton = document.getElementById('addCalendarButton');
+        const scrollThreshold = 100; // Píxeles después de los cuales el encabezado se encoge
+
+        // Nombres de los días de la semana en español para la lógica
+        const daysOfWeek = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+
+        // Función para actualizar la fecha y hora
+        function updateDateTime() {
+            const now = new Date();
+            // Opciones completas para la fecha (ej. "Sábado, 14 de junio")
+            const optionsFullDate = { weekday: 'long', day: 'numeric', month: 'long' };
+            // Opciones para la hora (ej. "11:30 PM")
+            const optionsFullTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+
+            // Opciones para la fecha y hora cuando se hace scroll (ej. "Sáb. 11:30 PM")
+            const optionsScrolledDate = { weekday: 'short' }; // Ej. "Sáb."
+
+            const fullDate = now.toLocaleDateString('es-ES', optionsFullDate);
+            const fullTime = now.toLocaleTimeString('es-ES', optionsFullTime);
+            const scrolledDate = now.toLocaleDateString('es-ES', optionsScrolledDate);
+            const scrolledTime = now.toLocaleTimeString('es-ES', optionsFullTime);
+
+            fullDateSpan.textContent = `${fullDate.charAt(0).toUpperCase() + fullDate.slice(1)}`; // Capitaliza la primera letra del día
+            fullTimeSpan.textContent = fullTime;
+            scrolledDateTimeSpan.textContent = `${scrolledDate}. ${scrolledTime}`;
+
+            // Obtener el día de la semana actual en minúsculas y sin acentos para comparación
+            const currentDayIndex = now.getDay();
+            const currentDay = daysOfWeek[currentDayIndex]; // "lunes", "martes", etc.
+
+            // Aplicar lógica de días específicos
+            applyDaySpecificLogic(currentDay);
+
+            // Aplicar resaltado del próximo bloque
+            highlightCurrentTimeSlot(now);
+        }
+
+        // Función para aplicar lógica de días específicos a los medicamentos
+        function applyDaySpecificLogic(currentDay) {
+            document.querySelectorAll('.medication-item[data-days]').forEach(item => {
+                const daysAttr = item.getAttribute('data-days');
+                const specificDays = daysAttr.split(',').map(day => day.trim());
+                const medicationNameElement = item.querySelector('.medication-name');
+                let eyebrow = item.querySelector('.day-specific-eyebrow');
+                let noTakeChip = item.querySelector('.no-take-chip');
+
+                // Crear eyebrow si no existe
+                if (!eyebrow) {
+                    eyebrow = document.createElement('span');
+                    eyebrow.className = 'day-specific-eyebrow hidden';
+                    item.prepend(eyebrow); // Añadir como primer hijo
+                }
+
+                // Crear no-take chip si no existe
+                if (!noTakeChip) {
+                    noTakeChip = document.createElement('span');
+                    noTakeChip.className = 'no-take-chip hidden';
+                    noTakeChip.innerHTML = '<span>🚫</span> Hoy no se toma'; // Incluye el emoji aquí
+                    medicationNameElement.appendChild(noTakeChip);
+                }
+
+                // Formatear los días para el eyebrow
+                const formattedDays = specificDays.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(', ');
+                eyebrow.innerHTML = `<span>🗓️</span> Tomar: ${formattedDays}`; // Incluye el emoji aquí
+
+                // Mostrar el eyebrow
+                eyebrow.classList.remove('hidden');
+
+                if (specificDays.includes(currentDay)) {
+                    // Si hoy se toma
+                    medicationNameElement.classList.remove('strikethrough');
+                    noTakeChip.classList.add('hidden');
+                } else {
+                    // Si hoy NO se toma
+                    medicationNameElement.classList.add('strikethrough');
+                    noTakeChip.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Función para resaltar el bloque de tiempo "Próximo"
+        function highlightCurrentTimeSlot(now) {
+            const timeSlots = document.querySelectorAll('.time-slot');
+            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+            let nextSlot = null;
+            let firstSlot = null; // Para el caso de que todas las horas ya hayan pasado
+
+            // Resetear todos los resaltados
+            timeSlots.forEach(slot => {
+                slot.classList.remove('is-next');
+                const nextIndicator = slot.querySelector('.next-indicator');
+                if (nextIndicator) {
+                    nextIndicator.style.display = 'none'; // Ocultar todos los indicadores 'Próximo'
+                }
+            });
+
+            for (let i = 0; i < timeSlots.length; i++) {
+                const slot = timeSlots[i];
+                if (!firstSlot) firstSlot = slot; // Capturar el primer slot
+
+                const timeAttr = slot.getAttribute('data-time'); // Formato "HH:MM"
+                if (timeAttr) {
+                    const [hours, minutes] = timeAttr.split(':').map(Number);
+                    const slotTimeInMinutes = hours * 60 + minutes;
+
+                    if (slotTimeInMinutes >= currentTimeInMinutes) {
+                        nextSlot = slot;
+                        break; // Encontramos el próximo slot
+                    }
+                }
+            }
+
+            // Aplicar resaltado al slot encontrado
+            if (nextSlot) {
+                nextSlot.classList.add('is-next');
+                const nextIndicator = nextSlot.querySelector('.next-indicator');
+                if (nextIndicator) {
+                    nextIndicator.style.display = 'inline-flex'; // Mostrar el indicador 'Próximo'
+                }
+            } else if (firstSlot) {
+                // Si todas las horas ya pasaron (es decir, ya pasó la última hora del día),
+                // resaltar el primer slot del día siguiente (o el primer slot del día actual si es antes de la primera medicación)
+                firstSlot.classList.add('is-next');
+                const nextIndicator = firstSlot.querySelector('.next-indicator');
+                if (nextIndicator) {
+                    nextIndicator.style.display = 'inline-flex'; // Mostrar el indicador 'Próximo'
+                }
+            }
+        }
+
+        // Función para hacer scroll al próximo medicamento
+        function scrollToNextMedication() {
+            const nextMedicationSlot = document.querySelector('.time-slot.is-next');
+            if (nextMedicationSlot) {
+                // Volvemos al scrollIntoView básico
+                setTimeout(() => {
+                    nextMedicationSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+
+        // Se elimina la función updateStickyTimeIndicators() y sus llamadas
+
+        // *** LÓGICA DE INICIALIZACIÓN DE LA PWA ***
+        // Se ejecuta una vez que el DOM está completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime(); // Actualiza fecha/hora, aplica lógica de días y resalta el próximo slot
+            scrollToNextMedication(); // Hace scroll al próximo slot
+        });
+
+        // Actualizar fecha y hora y lógica de días específicos cada minuto
+        setInterval(updateDateTime, 60000); // Actualiza cada 60 segundos
+
+        // Listener de evento de scroll para el comportamiento del encabezado
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > scrollThreshold) {
+                header.classList.add('scrolled');
             } else {
-                 medDiv.classList.remove('line-through', 'text-gray-400', 'opacity-75');
+                header.classList.remove('scrolled');
             }
         });
-    });
-    
-    if (nextMedBlock) {
-        // Highlight the next medication block
-        nextMedBlock.classList.add('scale-105', 'shadow-xl', 'relative', 'z-10', 'bg-white');
-        nextMedBlock.classList.remove('opacity-40');
-        const chipContainer = nextMedBlock.querySelector('.chip-container');
-        if (chipContainer) chipContainer.innerHTML = '<span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Siguiente</span>';
-    }
-  }
 
+        // Listener de evento de redimensionamiento de la ventana (se elimina la llamada a updateStickyTimeIndicators)
+        // window.addEventListener('resize', updateStickyTimeIndicators); // No es necesaria si no hay sticky hours
 
-  // --- PWA & NOTIFICATION/CALENDAR LOGIC ---
-  window.addEventListener('load', () => {
-    
-    const header = document.getElementById('main-header');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 10) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
+        // Event listener para el botón "Añadir al Calendario (iOS)"
+        addCalendarButton.addEventListener('click', () => {
+            console.log('Se hizo clic en Añadir al Calendario (iOS)');
 
-    // 1. Register the Service Worker (for Android/Desktop)
-    if ('serviceWorker' in navigator && location.protocol === 'https:') {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Service Worker registrado', reg))
-        .catch(err => console.error('Error al registrar Service Worker', err));
-    }
-    
-    // 2. Initial UI update
-    updateDateTime(); // Initial call for date/time
-    setInterval(updateDateTime, 1000); // Update date/time every second
+            // Mostrar un mensaje temporal al usuario (reemplazo de alert())
+            const messageBox = document.createElement('div');
+            messageBox.textContent = 'Funcionalidad de añadir al calendario no implementada en esta demo.';
+            messageBox.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: var(--card-background);
+                color: var(--text-primary);
+                padding: 12px 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                z-index: 1001;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.9rem;
+                border: 1px solid var(--card-border);
+            `;
+            document.body.appendChild(messageBox);
 
-    updateMedicationStatusUI(); // Initial call for med status
-    setInterval(updateMedicationStatusUI, 60000); // Update med status every minute
+            // Animar la aparición y desaparición
+            setTimeout(() => { messageBox.style.opacity = 1; }, 50);
+            setTimeout(() => {
+                messageBox.style.opacity = 0;
+                messageBox.addEventListener('transitionend', () => messageBox.remove());
+            }, 3000);
+        });
 
-    // 3. Button logic
-    const remindersBtn = document.getElementById('setup-reminders-btn');
-    const notificationStatus = document.getElementById('notification-status');
-    const supportsScheduledNotifications = 'Notification' in window && 'showTrigger' in Notification.prototype;
-
-    // Change button text based on capability
-    if (!supportsScheduledNotifications) {
-        remindersBtn.innerHTML = 'Añadir al Calendario (iOS) 📅';
-    } else {
-        remindersBtn.innerHTML = 'Activar Notificaciones (Android) 🔔';
-    }
-    
-    if ('Notification' in window && Notification.permission === 'granted' && supportsScheduledNotifications) {
-        notificationStatus.textContent = 'Las notificaciones automáticas están activadas.';
-        remindersBtn.style.display = 'none';
-    } else if ('Notification' in window && Notification.permission === 'denied') {
-        notificationStatus.textContent = 'Los recordatorios fueron bloqueados.';
-        remindersBtn.style.display = 'none';
-    }
-
-    remindersBtn.addEventListener('click', async () => {
-        if (supportsScheduledNotifications) {
-            // Standard flow for Android/Desktop
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                notificationStatus.textContent = '¡Notificaciones activadas con éxito!';
-                remindersBtn.style.display = 'none';
-                await scheduleAllNotifications();
-            } else {
-                notificationStatus.textContent = 'Permiso de notificaciones denegado.';
-            }
-        } else {
-            // Fallback for iOS: generate and download a calendar file
-            notificationStatus.textContent = 'Generando archivo de calendario...';
-            generateAndDownloadICS();
-            remindersBtn.style.display = 'none';
-            notificationStatus.textContent = '¡Eventos listos! Revisa tus descargas.';
-        }
-    });
-  });
-  
-  // Function for Android/Desktop
-  async function scheduleAllNotifications() {
-      const registration = await navigator.serviceWorker.getRegistration();
-      if (!registration) {
-          console.error("No hay un Service Worker registrado.");
-          return;
-      }
-      
-      const existingNotifications = await registration.getNotifications({includeTriggered: true});
-      existingNotifications.forEach(notification => notification.close());
-      console.log('Notificaciones previas borradas.');
-
-      const timeBlocks = document.querySelectorAll('.time-block');
-      
-      for(const block of timeBlocks) {
-          const medName = Array.from(block.querySelectorAll('.font-bold')).map(p => p.textContent.trim()).join(' y ');
-          const [hours, minutes] = block.dataset.time.split(':').map(Number);
-          
-          const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-          const notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
-          
-          if (notificationTime.getTime() < now.getTime()) {
-              notificationTime.setDate(notificationTime.getDate() + 1);
-          }
-          
-          try {
-              await registration.showNotification('Hora de tu medicamento', {
-                  body: `Es hora de tomar: ${medName}`,
-                  tag: `med-${block.id}-${notificationTime.getDate()}`,
-                  icon: 'icons/icon-192x192.png',
-                  badge: 'icons/icon-72x72.png',
-                  showTrigger: new TimestampTrigger(notificationTime.getTime()),
-                  requireInteraction: true
-              });
-              console.log(`Notificación programada para ${medName} a las ${notificationTime.toLocaleTimeString()}`);
-          } catch(e) {
-              console.error(`Error al programar notificación para ${medName}: `, e);
-              document.getElementById('notification-status').textContent = 'Error: Notificaciones programadas no soportadas.';
-          }
-      }
-  }
-
-  // Function for iOS
-  function generateAndDownloadICS() {
-    let icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//lovozeto//Horario de Medicamentos//ES',
-    ];
-
-    const timeBlocks = document.querySelectorAll('.time-block');
-    const timeZone = "America/Bogota";
-
-    timeBlocks.forEach(block => {
-      const medNames = Array.from(block.querySelectorAll('.font-bold')).map(p => p.textContent.trim()).join(' y ');
-      const [hours, minutes] = block.dataset.time.split(':').map(Number);
-      
-      const now = new Date();
-      const dtstart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}T${String(hours).padStart(2,'0')}${String(minutes).padStart(2,'0')}00`;
-
-      icsContent.push('BEGIN:VEVENT');
-      icsContent.push(`DTSTART;TZID=${timeZone}:${dtstart}`);
-      icsContent.push(`SUMMARY:💊 Hora de tomar: ${medNames}`);
-      icsContent.push(`DESCRIPTION:Recordatorio para tomar ${medNames}.`);
-      // RRULE: Repeats daily for 30 days
-      icsContent.push('RRULE:FREQ=DAILY;COUNT=30'); 
-      icsContent.push('BEGIN:VALARM');
-      icsContent.push('TRIGGER:-PT0M'); // Alert at the time of the event
-      icsContent.push('ACTION:DISPLAY');
-      icsContent.push('DESCRIPTION:Recordatorio');
-      icsContent.push('END:VALARM');
-      icsContent.push('END:VEVENT');
-    });
-
-    icsContent.push('END:VCALENDAR');
-    const icsFileContent = icsContent.join('\r\n');
-
-    const blob = new Blob([icsFileContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'HorarioMedicamentos.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-</script>
-
+        // ************************************************************
+        // AQUÍ IRÁN TUS SCRIPTS ESPECÍFICOS DE LA PWA ORIGINAL SI LOS TIENES
+        // ************************************************************
+    </script>
 </body>
 </html>
