@@ -6,13 +6,13 @@
     <title>Horario de Medicamentos</title>
 
     <!-- PWA Manifest - Ruta absoluta para GitHub Pages -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/meds-abueloHastamorir/manifest.json">
     <!-- Theme color for PWA - Define el color de la barra del navegador, se ajusta con el modo oscuro -->
     <meta name="theme-color" content="#1A202C">
 
     <!-- Apple Touch Icon para iOS - Ruta absoluta recomendada -->
     <!-- Asegúrate de tener este icono en tu carpeta /icons/ -->
-    <link rel="apple-touch-icon" href="icons/icon-180x180.png">
+    <link rel="apple-touch-icon" href="/meds-abueloHastamorir/icons/icon-180x180.png">
 
     <!-- Meta Tags para Compartir en Redes Sociales (Open Graph y Twitter Cards) -->
     <!-- Asegúrate de que las rutas de las imágenes sean ABSOLUTAS a tu URL de GitHub Pages -->
@@ -39,7 +39,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Carga tu CSS personalizado desde un archivo externo -->
-    <link rel="stylesheet" href="style.css">
+    <!-- ¡CORREGIDO! Cambiado de 'style.css' a 'styles.css' -->
+    <link rel="stylesheet" href="/meds-abueloHastamorir/styles.css">
 
 </head>
 <body>
@@ -262,7 +263,7 @@
     </main>
 
     <!-- Carga tu JavaScript personalizado desde un archivo externo -->
-    <script src="app.js"></script>
+    <script src="/meds-abueloHastamorir/app.js"></script>
 
     <!-- Script para registrar el Service Worker -->
     <script>
@@ -272,7 +273,7 @@
             window.addEventListener('load', () => {
                 // Registra el Service Worker, usando una ruta absoluta para GitHub Pages.
                 // Es crucial que 'sw.js' esté en la raíz de tu subdirectorio de repositorio.
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('/meds-abueloHastamorir/sw.js')
                     .then(registration => {
                         // Si el registro es exitoso, imprime el alcance del Service Worker
                         console.log('Service Worker registrado con éxito:', registration.scope);
