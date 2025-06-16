@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <!-- viewport-fit=cover es importante para Safe Area -->
   
   <title>Horario de Medicamentos</title>
   <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
@@ -36,8 +36,26 @@
   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
   <style>
-    ion-content { --background: #f2f2f7; }
-    body.dark ion-content { --background: #000000; }
+    /* Estilo de fondo tipo "Ajustes" de iOS */
+    ion-content {
+        --background: #f2f2f7;
+    }
+    body.dark ion-content {
+        --background: #000000;
+    }
+
+    /* --- AJUSTES DE DISEÑO FINALES --- */
+
+    /* SOLUCIÓN 1: Forzar el fondo del header de la hora para que coincida con el fondo de la página */
+    ion-list-header {
+      /* --ion-color-step-50 es la variable de Ionic para el color gris claro de fondo */
+      --background: var(--ion-color-step-50, #f2f2f7);
+    }
+    
+    /* SOLUCIÓN 2: Añadir padding inferior a la tab-bar para respetar la "Safe Area" de iOS */
+    ion-tab-bar {
+      padding-bottom: var(--ion-safe-area-bottom, 0);
+    }
 
     .page-container {
         max-width: 768px; 
@@ -88,14 +106,13 @@
 
     const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
     
-    // CORREGIDO: Usando el toastController de Ionic
     async function showToast(message, color = 'dark', duration = 3000) {
       const toastController = window.toastController;
       const toast = await toastController.create({
         message: message,
         duration: duration,
         color: color,
-        position: 'top' // Los toasts de iOS se ven mejor arriba
+        position: 'top'
       });
       await toast.present();
     }
@@ -242,7 +259,6 @@
             this.setupManualUpdate(); this.setupNotificationInteractions();
         }
         
-        // CORREGIDO: Usando el loadingController de Ionic
         async forceUpdate() {
             const loadingController = window.loadingController;
             const loading = await loadingController.create({ message: 'Actualizando...' });
