@@ -44,11 +44,8 @@
         --background: #000000;
     }
 
-    /* --- AJUSTES DE DISEÑO FINALES --- */
-
     /* SOLUCIÓN 1: Forzar el fondo del header de la hora para que coincida con el fondo de la página */
     ion-list-header {
-      /* --ion-color-step-50 es la variable de Ionic para el color gris claro de fondo */
       --background: var(--ion-color-step-50, #f2f2f7);
     }
     
@@ -119,7 +116,46 @@
 
     function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
     function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
+    
+    // --- LÓGICA DE ACTUALIZACIÓN (AHORA GLOBAL) ---
+    async function forceUpdate(showLoading = false) {
+        let loading;
+        if (showLoading) {
+            const loadingController = window.loadingController;
+            loading = await loadingController.create({ message: 'Actualizando...' });
+            await loading.present();
+        }
 
+        try {
+            if ('serviceWorker' in navigator) {
+                console.log('Buscando y desregistrando Service Workers...');
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+                console.log('Service Workers desregistrados.');
+            }
+
+            console.log('Borrando todas las cachés...');
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+            console.log('Cachés borradas.');
+
+            await showToast('Actualización completada. Recargando...', 'success');
+            setTimeout(() => window.location.reload(true), 1000);
+
+        } catch (error) {
+            console.error('Error al forzar la actualización:', error);
+            await showToast('Error al forzar la actualización.', 'danger');
+        } finally {
+            if (loading) {
+                await loading.dismiss();
+            }
+        }
+    }
+
+
+    // --- DEFINICIÓN DE PÁGINAS ---
     class SchedulePage extends HTMLElement {
         connectedCallback() {
             this.innerHTML = `
@@ -203,25 +239,14 @@
                 }
             }
         }
-        async forceUpdate() {
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) { await registration.unregister(); }
-                const cacheNames = await caches.keys();
-                await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-            }
-            await showToast('Actualización completada. Recargando...', 'success');
-            setTimeout(() => window.location.reload(true), 1000);
-        }
         setupRefresher() {
             if (!this.refresher) return;
             this.refresher.addEventListener('ionRefresh', async (event) => {
                 const subtitleEl = this.querySelector('#header-subtitle-text');
                 subtitleEl.textContent = 'Buscando actualizaciones...';
-                setTimeout(async () => {
-                     await this.forceUpdate();
-                     event.target.complete();
-                }, 1500);
+                // El refresher llama a la función global sin el loading
+                await forceUpdate(false);
+                event.target.complete();
             });
         }
     }
@@ -258,24 +283,15 @@
             `;
             this.setupManualUpdate(); this.setupNotificationInteractions();
         }
-        
-        async forceUpdate() {
-            const loadingController = window.loadingController;
-            const loading = await loadingController.create({ message: 'Actualizando...' });
-            await loading.present();
 
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) { await registration.unregister(); }
-                const cacheNames = await caches.keys();
-                await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+        setupManualUpdate() {
+            const updateButton = this.querySelector('#force-update-button');
+            if(updateButton) {
+                // El botón llama a la función global CON el loading
+                updateButton.addEventListener('click', () => forceUpdate(true));
             }
-            await showToast('Actualización completada. Recargando...', 'success');
-            setTimeout(() => window.location.reload(true), 1000);
-            await loading.dismiss();
         }
-
-        setupManualUpdate() { const updateButton = this.querySelector('#force-update-button'); if(updateButton) { updateButton.addEventListener('click', () => this.forceUpdate()); } }
+        
         async scheduleAllNotifications() {
             const reg = await navigator.serviceWorker.getRegistration();
             if (!reg || !('showTrigger' in Notification.prototype)) { return showToast('Este navegador no soporta la programación de notificaciones.', 'danger'); }
