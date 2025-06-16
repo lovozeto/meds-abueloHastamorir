@@ -4,22 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Título y Descripción de la App -->
   <title>Horario de Medicamentos</title>
   <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
-
-  <!-- Color del tema para la barra del navegador (Chrome, Firefox, etc.) -->
   <meta name="theme-color" content="#f2f2f7">
 
-  <!-- Iconos para Apple y PWA -->
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-180x180.png"> <!-- Icono para iPhone/iPad -->
+  <link rel="apple-touch-icon" href="icons/icon-180x180.png">
 
-  <!-- Meta Tags para Social Sharing (Open Graph y Twitter) -->
   <meta property="og:title" content="Horario de Medicamentos">
   <meta property="og:description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
-  <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/share-image.png"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
-  <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
+  <meta property="og:image" content="https://tu-usuario.github.io/tu-repositorio/icons/share-image.png"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
+  <meta property="og:url" content="https://tu-usuario.github.io/tu-repositorio/"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
   <meta name="twitter:card" content="summary_large_image">
 
   <script>
@@ -43,6 +38,14 @@
   <style>
     ion-content { --background: #f2f2f7; }
     body.dark ion-content { --background: #000000; }
+
+    /* --- NUEVO: Contenedor para Escritorio/Tablet --- */
+    .page-container {
+        max-width: 768px; /* Ancho máximo del contenido */
+        margin-left: auto;  /* Centrado horizontal */
+        margin-right: auto; /* Centrado horizontal */
+    }
+
     .dosage-text { font-weight: 500; color: var(--ion-color-primary); margin-top: 8px; }
     .eyebrow { font-size: 0.75rem; font-weight: 500; color: var(--ion-color-medium-shade); display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
     .med-not-today { text-decoration: line-through; opacity: 0.6; }
@@ -99,18 +102,20 @@
                     </ion-toolbar>
                 </ion-header>
                 <ion-content fullscreen="true">
-                    <ion-refresher slot="fixed" id="refresher">
-                        <ion-refresher-content></ion-refresher-content>
-                    </ion-refresher>
-                    <ion-header collapse="condense" translucent="true">
-                        <ion-toolbar>
-                            <ion-title size="large" id="large-header-title">Horario</ion-title>
-                        </ion-toolbar>
-                        <ion-toolbar>
-                            <ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note>
-                        </ion-toolbar>
-                    </ion-header>
-                    <div id="schedule-container"></div>
+                    <div class="page-container">
+                        <ion-refresher slot="fixed" id="refresher">
+                            <ion-refresher-content></ion-refresher-content>
+                        </ion-refresher>
+                        <ion-header collapse="condense" translucent="true">
+                            <ion-toolbar>
+                                <ion-title size="large" id="large-header-title">Horario</ion-title>
+                            </ion-toolbar>
+                            <ion-toolbar>
+                                <ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note>
+                            </ion-toolbar>
+                        </ion-header>
+                        <div id="schedule-container"></div>
+                    </div>
                 </ion-content>
             `;
             this.ionContent = this.querySelector('ion-content');
@@ -209,25 +214,27 @@
                         <ion-title>Configuración</ion-title>
                     </ion-toolbar>
                 </ion-header>
-                <ion-content fullscreen="true" class="ion-padding">
-                    <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
-                    <ion-list inset="true">
-                        <ion-item button="true" id="setup-notifications-button">
-                            <ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon>
-                            <ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label>
-                        </ion-item>
-                        <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank">
-                            <ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon>
-                            <ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label>
-                        </ion-item>
-                    </ion-list>
-                    <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
-                    <ion-list inset="true">
-                        <ion-item button="true" id="force-update-button">
-                            <ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon>
-                            <ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label>
-                        </ion-item>
-                    </ion-list>
+                <ion-content fullscreen="true">
+                    <div class="page-container ion-padding">
+                        <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
+                        <ion-list inset="true">
+                            <ion-item button="true" id="setup-notifications-button">
+                                <ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon>
+                                <ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label>
+                            </ion-item>
+                            <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank">
+                                <ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon>
+                                <ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label>
+                            </ion-item>
+                        </ion-list>
+                        <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
+                        <ion-list inset="true">
+                            <ion-item button="true" id="force-update-button">
+                                <ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon>
+                                <ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </div>
                 </ion-content>
             `;
             this.setupManualUpdate(); this.setupNotificationInteractions();
