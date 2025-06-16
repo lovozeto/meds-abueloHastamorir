@@ -13,8 +13,8 @@
 
   <meta property="og:title" content="Horario de Medicamentos">
   <meta property="og:description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
-  <meta property="og:image" content="https://tu-usuario.github.io/tu-repositorio/icons/share-image.png"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
-  <meta property="og:url" content="https://tu-usuario.github.io/tu-repositorio/"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
+  <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/share-image.png">
+  <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/">
   <meta name="twitter:card" content="summary_large_image">
 
   <script>
@@ -39,11 +39,10 @@
     ion-content { --background: #f2f2f7; }
     body.dark ion-content { --background: #000000; }
 
-    /* --- NUEVO: Contenedor para Escritorio/Tablet --- */
     .page-container {
-        max-width: 768px; /* Ancho máximo del contenido */
-        margin-left: auto;  /* Centrado horizontal */
-        margin-right: auto; /* Centrado horizontal */
+        max-width: 768px; 
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .dosage-text { font-weight: 500; color: var(--ion-color-primary); margin-top: 8px; }
@@ -85,11 +84,22 @@
   </ion-app>
 
   <script type="module">
-    // Importamos los datos desde el archivo externo
     import { medicationSchedule } from './data.js';
 
     const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
-    async function showToast(m, c = 'dark', d = 3000) { const t=document.createElement('ion-toast'); t.message=m; t.color=c; t.duration=d; document.body.appendChild(t); await t.present(); }
+    
+    // CORREGIDO: Usando el toastController de Ionic
+    async function showToast(message, color = 'dark', duration = 3000) {
+      const toastController = window.toastController;
+      const toast = await toastController.create({
+        message: message,
+        duration: duration,
+        color: color,
+        position: 'top' // Los toasts de iOS se ven mejor arriba
+      });
+      await toast.present();
+    }
+
     function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
     function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
 
@@ -118,14 +128,9 @@
                     </div>
                 </ion-content>
             `;
-            this.ionContent = this.querySelector('ion-content');
             this.scheduleContainer = this.querySelector('#schedule-container');
             this.refresher = this.querySelector('#refresher');
-            
-            this.renderSchedule();
-            this.updateHeader();
-            this.updateScheduleStatus();
-            this.setupRefresher();
+            this.renderSchedule(); this.updateHeader(); this.updateScheduleStatus(); this.setupRefresher();
             this.updateInterval = setInterval(() => this.updateScheduleStatus(), 60000);
         }
         disconnectedCallback() { clearInterval(this.updateInterval); }
@@ -133,9 +138,7 @@
             if (!this.scheduleContainer) return; this.scheduleContainer.innerHTML = ''; const today = new Date().getDay();
             medicationSchedule.forEach(block => {
                 const blockContainer = document.createElement('div'); blockContainer.id = `block-${block.time.replace(/[\s:]/g, '')}`; blockContainer.classList.add('ion-padding-horizontal');
-                const listHeader = document.createElement('ion-list-header');
-                listHeader.innerHTML = `<ion-label>${block.time}</ion-label>`;
-                blockContainer.appendChild(listHeader);
+                const listHeader = document.createElement('ion-list-header'); listHeader.innerHTML = `<ion-label>${block.time}</ion-label>`; blockContainer.appendChild(listHeader);
                 const list = document.createElement('ion-list'); list.inset = true;
                 block.medications.forEach(med => {
                     const item = document.createElement('ion-item'); let itemHTML = `<ion-label>`;
@@ -175,8 +178,7 @@
                     nextBlockFound = true;
                     const headerLabel = blockElement.querySelector('ion-list-header ion-label');
                     if (headerLabel) {
-                        const chip = document.createElement('ion-chip');
-                        chip.color = 'primary'; chip.textContent = 'Siguiente'; chip.classList.add('next-chip');
+                        const chip = document.createElement('ion-chip'); chip.color = 'primary'; chip.textContent = 'Siguiente'; chip.classList.add('next-chip');
                         headerLabel.appendChild(chip);
                     }
                 } else if (blockTimeInMinutes < nowInMinutes) {
@@ -239,8 +241,13 @@
             `;
             this.setupManualUpdate(); this.setupNotificationInteractions();
         }
+        
+        // CORREGIDO: Usando el loadingController de Ionic
         async forceUpdate() {
-            const loading = document.createElement('ion-loading'); loading.message = 'Actualizando...'; document.body.appendChild(loading); await loading.present();
+            const loadingController = window.loadingController;
+            const loading = await loadingController.create({ message: 'Actualizando...' });
+            await loading.present();
+
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 for (let registration of registrations) { await registration.unregister(); }
@@ -251,6 +258,7 @@
             setTimeout(() => window.location.reload(true), 1000);
             await loading.dismiss();
         }
+
         setupManualUpdate() { const updateButton = this.querySelector('#force-update-button'); if(updateButton) { updateButton.addEventListener('click', () => this.forceUpdate()); } }
         async scheduleAllNotifications() {
             const reg = await navigator.serviceWorker.getRegistration();
@@ -288,7 +296,6 @@
     navs[0].root = 'schedule-page';
     navs[1].root = 'settings-page';
     
-    // Registrar el service worker externo
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('Service Worker registrado:', reg))

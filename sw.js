@@ -1,13 +1,17 @@
-// sw.js
+const CACHE_NAME = 'horario-medicamentos-v-final-3'; // Nueva versión de caché
 
-const CACHE_NAME = 'horario-medicamentos-v-final'; // Nombre final de la caché
-
-// Lista de archivos a guardar en la memoria de la app.
+// Lista actualizada con todos los iconos del manifest
 const urlsToCache = [
   '/',
   '/index.html',
   '/data.js',
   '/manifest.json',
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
+  '/icons/icon-180x180.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   'https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css',
