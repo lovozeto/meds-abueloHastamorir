@@ -1,289 +1,292 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horario de Medicamentos</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Título y Descripción de la App -->
+  <title>Horario de Medicamentos</title>
+  <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
 
-    <!-- PWA Manifest - Ruta absoluta para GitHub Pages -->
-    <link rel="manifest" href="/meds-abueloHastamorir/manifest.json">
-    <!-- Theme color for PWA - Define el color de la barra del navegador, se ajusta con el modo oscuro -->
-    <meta name="theme-color" content="#1A202C">
+  <!-- Color del tema para la barra del navegador (Chrome, Firefox, etc.) -->
+  <meta name="theme-color" content="#f2f2f7">
 
-    <!-- Apple Touch Icon para iOS - Ruta absoluta recomendada -->
-    <!-- Asegúrate de tener este icono en tu carpeta /icons/ -->
-    <link rel="apple-touch-icon" href="/meds-abueloHastamorir/icons/icon-180x180.png">
+  <!-- Iconos para Apple y PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-180x180.png"> <!-- Icono para iPhone/iPad -->
 
-    <!-- Meta Tags para Compartir en Redes Sociales (Open Graph y Twitter Cards) -->
-    <!-- Asegúrate de que las rutas de las imágenes sean ABSOLUTAS a tu URL de GitHub Pages -->
-    <meta property="og:title" content="Horario de Medicamentos Cenén">
-    <meta property="og:description" content="Una aplicación simple para gestionar el horario de medicamentos de Cenén, disponible offline.">
-    <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/icon-512x512.png">
-    <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/">
-    <meta property="og:type" content="website">
+  <!-- Meta Tags para Social Sharing (Open Graph y Twitter) -->
+  <meta property="og:title" content="Horario de Medicamentos">
+  <meta property="og:description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
+  <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/share-image.png"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
+  <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/"> <!-- ¡IMPORTANTE: Reemplaza esta URL! -->
+  <meta name="twitter:card" content="summary_large_image">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Horario de Medicamentos Cenén">
-    <meta name="twitter:description" content="Una aplicación simple para gestionar el horario de medicamentos de Cenén, disponible offline.">
-    <meta name="twitter:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/icon-512x512.png">
-    <!-- Si tienes un handle de Twitter para la app, puedes añadir: -->
-    <!-- <meta name="twitter:site" content="@tuTwitterHandle"> -->
+  <script>
+    window.Ionic = {
+      config: {
+        mode: (() => {
+          const userAgent = navigator.userAgent;
+          const isAndroid = /Android/i.test(userAgent);
+          if (isAndroid) {
+            return 'md';
+          }
+          return 'ios';
+        })()
+      }
+    };
+  </script>
 
-    <!-- Tailwind CSS CDN para utilidades y sistema de diseño -->
-    <!-- Para una PWA offline-first, es ideal auto-hospedar este CSS. -->
-    <!-- Si no lo auto-hospedas, su URL debe estar en el CACHE_NAME del Service Worker. -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuente Inter para una estética limpia y moderna -->
-    <!-- Para una PWA offline-first, es ideal auto-hospedar estas fuentes. -->
-    <!-- Si no lo auto-hospedas, su URL debe estar en el CACHE_NAME del Service Worker. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Carga tu CSS personalizado desde un archivo externo -->
-    <!-- ¡CORREGIDO! Cambiado de 'style.css' a 'styles.css' -->
-    <link rel="stylesheet" href="/meds-abueloHastamorir/styles.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"/>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+  <style>
+    ion-content { --background: #f2f2f7; }
+    body.dark ion-content { --background: #000000; }
+    .dosage-text { font-weight: 500; color: var(--ion-color-primary); margin-top: 8px; }
+    .eyebrow { font-size: 0.75rem; font-weight: 500; color: var(--ion-color-medium-shade); display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .med-not-today { text-decoration: line-through; opacity: 0.6; }
+    .schedule-block-past { opacity: 0.5; }
+    .schedule-block-next ion-list {
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+        transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
+    }
+    body.dark .schedule-block-next ion-list {
+        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+    }
+    .next-chip { margin-left: 12px; font-size: 0.8rem; }
+  </style>
 </head>
 <body>
-    <header id="mainHeader" class="header">
-        <div class="header-left">
-            <h1 class="header-title">Horario de Medicamentos</h1>
-            <span class="header-subtitle">Cenén</span>
-        </div>
-        <div class="header-right">
-            <span id="fullDate" class="header-full-date-time text-white/90 font-medium"></span><br class="header-full-date-time">
-            <span id="fullTime" class="header-full-date-time text-white/80 font-normal text-sm"></span>
-            <span id="scrolledDateTime" class="header-scrolled-date-time"></span>
-        </div>
-        <button id="addCalendarButton" class="header-button">
-            Añadir al Calendario (iOS) <span class="ml-2">🗓️</span>
-        </button>
-    </header>
+  <ion-app>
+    <ion-tabs>
+      <ion-tab tab="schedule">
+        <ion-nav></ion-nav>
+      </ion-tab>
+      <ion-tab tab="settings">
+        <ion-nav></ion-nav>
+      </ion-tab>
 
-    <main class="container mx-auto max-w-2xl">
-        <section class="medication-day-section">
-            <!-- Bloque de 6:00 AM -->
-            <div class="time-slot" data-time="06:00">
-                <div class="time-indicator">
-                    <span class="time-text">6:00 am</span>
-                    <span class="next-indicator">Próximo</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item">
-                        <h3 class="medication-name">Aciclovir Genfar</h3>
-                        <p class="medication-detail">Antiviral (Dosis 1 de 3)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
-                        <p class="medication-detail">Antiespasmódico (Dosis 1 de 3)</p>
-                    </div>
-                    <div class="medication-item optional-note">
-                        <h3 class="medication-name">Acetaminofen</h3>
-                        <p class="medication-detail">Analgésico (Dosis 1 de 3)</p>
-                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
-                    </div>
-                </div>
-            </div>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="schedule">
+          <ion-icon name="medkit"></ion-icon>
+          <ion-label>Horario</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="settings">
+          <ion-icon name="settings-outline"></ion-icon>
+          <ion-label>Configuración</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </ion-app>
 
-            <!-- Bloque de 8:30 AM -->
-            <div class="time-slot" data-time="08:30">
-                <div class="time-indicator">
-                    <span class="time-text">8:30 am</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item meal-note tooth-icon">
-                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
-                        <p class="medication-detail">Lavado bucal</p>
-                        <p class="note-text"><span>🦷</span> Antes del desayuno</p>
-                    </div>
-                </div>
-            </div>
+  <script type="module">
+    // Importamos los datos desde el archivo externo
+    import { medicationSchedule } from './data.js';
 
-            <!-- Bloque de 9:00 AM -->
-            <div class="time-slot" data-time="09:00">
-                <div class="time-indicator">
-                    <span class="time-text">9:00 am</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-group-header">
-                        <h3 class="medication-name">Medicamentos de la mañana</h3>
-                        <p class="medication-detail">Tomar todos juntos con el desayuno</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Apixaban (Eliquis)</h3>
-                        <p class="medication-detail">Anticoagulante (Dosis 1 de 2)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Omeprazol (Esomeprazol)</h3>
-                        <p class="medication-detail">Protector gástrico</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Sitagliptina + Metformina (Janumet)</h3>
-                        <p class="medication-detail">Antidiabético (Dosis 1 de 2)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Alopurinol (Zyloprim)</h3>
-                        <p class="medication-detail">Ácido úrico</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Colchicina (Colchimedio)</h3>
-                        <p class="medication-detail">Gota</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Metoprolol Succinato (Betaloc ZOK)</h3>
-                        <p class="medication-detail">Antihipertensivo</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Tiotropio (Spiriva Respimat)</h3>
-                        <p class="medication-detail">Broncodilatador</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Amlodipino</h3>
-                        <p class="medication-detail">Antihipertensivo</p>
-                    </div>
-                    <div class="medication-item" data-days="lunes,miercoles,viernes">
-                        <span class="day-specific-eyebrow hidden"><span>🗓️</span></span>
-                        <h3 class="medication-name">Trimetoprim</h3>
-                        <p class="medication-detail">Antibiótico</p>
-                    </div>
-                    <div class="medication-item optional-note">
-                        <h3 class="medication-name">Lactulosa (Constilax)</h3>
-                        <p class="medication-detail">Laxante</p>
-                        <p class="note-text"><span>⚠️</span> Solo si hay estreñimiento</p>
-                    </div>
-                </div>
-            </div>
+    const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
+    async function showToast(m, c = 'dark', d = 3000) { const t=document.createElement('ion-toast'); t.message=m; t.color=c; t.duration=d; document.body.appendChild(t); await t.present(); }
+    function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
+    function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
 
-            <!-- Bloque de 12:30 PM -->
-            <div class="time-slot" data-time="12:30">
-                <div class="time-indicator">
-                    <span class="time-text">12:30 pm</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item meal-note tooth-icon">
-                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
-                        <p class="medication-detail">Lavado bucal</p>
-                        <p class="note-text"><span>🦷</span> Antes del almuerzo</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bloque de 2:00 PM -->
-            <div class="time-slot" data-time="14:00">
-                <div class="time-indicator">
-                    <span class="time-text">2:00 pm</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item">
-                        <h3 class="medication-name">Aciclovir Genfar</h3>
-                        <p class="medication-detail">Antiviral (Dosis 2 de 3)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
-                        <p class="medication-detail">Antiespasmódico (Dosis 2 de 3)</p>
-                    </div>
-                    <div class="medication-item optional-note">
-                        <h3 class="medication-name">Acetaminofen</h3>
-                        <p class="medication-detail">Analgésico (Dosis 2 de 3)</p>
-                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
-                    </div>
-                    <div class="medication-item meal-note">
-                        <h3 class="medication-name">Vitamina D3</h3>
-                        <p class="medication-detail">Vitamina</p>
-                        <p class="note-text"><span>🍽️</span> Con el almuerzo</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bloque de 7:30 PM -->
-            <div class="time-slot" data-time="19:30">
-                <div class="time-indicator">
-                    <span class="time-text">7:30 pm</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item meal-note tooth-icon">
-                        <h3 class="medication-name">Albisán (Sulfato Oral)</h3>
-                        <p class="medication-detail">Lavado bucal</p>
-                        <p class="note-text"><span>🦷</span> Antes de la cena</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bloque de 9:00 PM -->
-            <div class="time-slot" data-time="21:00">
-                <div class="time-indicator">
-                    <span class="time-text">9:00 pm</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-group-header">
-                        <h3 class="medication-name">Medicamentos de la noche</h3>
-                        <p class="medication-detail">Tomar todos juntos con la cena</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Apixaban (Eliquis)</h3>
-                        <p class="medication-detail">Anticoagulante (Dosis 2 de 2)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Sitagliptina + Metformina (Janumet)</h3>
-                        <p class="medication-detail">Antidiabético (Dosis 2 de 2)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Trelegy</h3>
-                        <p class="medication-detail">Broncodilatador</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bloque de 10:00 PM -->
-            <div class="time-slot" data-time="22:00">
-                <div class="time-indicator">
-                    <span class="time-text">10:00 pm</span>
-                </div>
-                <div class="medication-list">
-                    <div class="medication-item">
-                        <h3 class="medication-name">Aciclovir Genfar</h3>
-                        <p class="medication-detail">Antiviral (Dosis 3 de 3)</p>
-                    </div>
-                    <div class="medication-item">
-                        <h3 class="medication-name">Hioscina N-butilbromo</h3>
-                        <p class="medication-detail">Antiespasmódico (Dosis 3 de 3)</p>
-                    </div>
-                    <div class="medication-item optional-note">
-                        <h3 class="medication-name">Acetaminofen</h3>
-                        <p class="medication-detail">Analgésico (Dosis 3 de 3)</p>
-                        <p class="note-text"><span>❓</span> Opcional si hay dolor</p>
-                    </div>
-                    <div class="medication-item glucometer-note">
-                        <h3 class="medication-name">Insulina Glargina</h3>
-                        <p class="medication-detail">Control de glucosa</p>
-                        <p class="note-text"><span>📊</span> Medir con glucómetro antes de aplicar</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Carga tu JavaScript personalizado desde un archivo externo -->
-    <script src="/meds-abueloHastamorir/app.js"></script>
-
-    <!-- Script para registrar el Service Worker -->
-    <script>
-        // Verifica si el navegador soporta Service Workers
-        if ('serviceWorker' in navigator) {
-            // Espera a que la página cargue completamente para registrar el Service Worker
-            window.addEventListener('load', () => {
-                // Registra el Service Worker, usando una ruta absoluta para GitHub Pages.
-                // Es crucial que 'sw.js' esté en la raíz de tu subdirectorio de repositorio.
-                navigator.serviceWorker.register('/meds-abueloHastamorir/sw.js')
-                    .then(registration => {
-                        // Si el registro es exitoso, imprime el alcance del Service Worker
-                        console.log('Service Worker registrado con éxito:', registration.scope);
-                    })
-                    .catch(error => {
-                        // Si el registro falla, imprime el error
-                        console.error('Fallo el registro del Service Worker:', error);
-                    });
+    class SchedulePage extends HTMLElement {
+        connectedCallback() {
+            this.innerHTML = `
+                <ion-header translucent="true">
+                    <ion-toolbar>
+                        <ion-title>Horario</ion-title>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content fullscreen="true">
+                    <ion-refresher slot="fixed" id="refresher">
+                        <ion-refresher-content></ion-refresher-content>
+                    </ion-refresher>
+                    <ion-header collapse="condense" translucent="true">
+                        <ion-toolbar>
+                            <ion-title size="large" id="large-header-title">Horario</ion-title>
+                        </ion-toolbar>
+                        <ion-toolbar>
+                            <ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note>
+                        </ion-toolbar>
+                    </ion-header>
+                    <div id="schedule-container"></div>
+                </ion-content>
+            `;
+            this.ionContent = this.querySelector('ion-content');
+            this.scheduleContainer = this.querySelector('#schedule-container');
+            this.refresher = this.querySelector('#refresher');
+            
+            this.renderSchedule();
+            this.updateHeader();
+            this.updateScheduleStatus();
+            this.setupRefresher();
+            this.updateInterval = setInterval(() => this.updateScheduleStatus(), 60000);
+        }
+        disconnectedCallback() { clearInterval(this.updateInterval); }
+        renderSchedule() {
+            if (!this.scheduleContainer) return; this.scheduleContainer.innerHTML = ''; const today = new Date().getDay();
+            medicationSchedule.forEach(block => {
+                const blockContainer = document.createElement('div'); blockContainer.id = `block-${block.time.replace(/[\s:]/g, '')}`; blockContainer.classList.add('ion-padding-horizontal');
+                const listHeader = document.createElement('ion-list-header');
+                listHeader.innerHTML = `<ion-label>${block.time}</ion-label>`;
+                blockContainer.appendChild(listHeader);
+                const list = document.createElement('ion-list'); list.inset = true;
+                block.medications.forEach(med => {
+                    const item = document.createElement('ion-item'); let itemHTML = `<ion-label>`;
+                    if (med.days) { itemHTML += `<p class="eyebrow"><ion-icon name="calendar-outline"></ion-icon> Tomar: ${generateDayText(med.days)}</p>`; }
+                    itemHTML += `<h2>${med.name}</h2><p>${med.description}</p>`;
+                    if (med.dosage) { itemHTML += `<p class="dosage-text">${med.dosage}</p>`; }
+                    if (med.note) { itemHTML += `<ion-chip color="${getColorForNoteLevel(med.note.level)}"><ion-label>${med.note.text}</ion-label></ion-chip>`; }
+                    itemHTML += `</ion-label>`; item.innerHTML = itemHTML;
+                    if (med.days && !med.days.includes(today)) { item.classList.add('med-not-today'); }
+                    list.appendChild(item);
+                });
+                blockContainer.appendChild(list); this.scheduleContainer.appendChild(blockContainer);
             });
         }
-    </script>
+        updateHeader() {
+            const titleEl = this.querySelector('#large-header-title'); const subtitleEl = this.querySelector('#header-subtitle-text'); if (!titleEl || !subtitleEl) return;
+            const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+            const dateOptions = { weekday: 'long' };
+            let formattedDate = new Intl.DateTimeFormat('es-CO', dateOptions).format(now);
+            titleEl.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+            const today = now.getDay(); const medsTodayCount = medicationSchedule.reduce((count, block) => count + block.medications.filter(med => !med.days || med.days.includes(today)).length, 0);
+            subtitleEl.textContent = `${medsTodayCount} medicamentos para hoy`;
+        }
+        updateScheduleStatus() {
+            const now = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Bogota'}));
+            const nowInMinutes = now.getHours() * 60 + now.getMinutes();
+            let nextBlockFound = false;
+            this.querySelectorAll('.schedule-block-past, .schedule-block-next').forEach(el => el.classList.remove('schedule-block-past','schedule-block-next'));
+            this.querySelectorAll('.next-chip').forEach(chip => chip.remove());
+            for (const block of medicationSchedule) {
+                const blockId = `block-${block.time.replace(/[\s:]/g, '')}`;
+                const blockElement = this.querySelector(`#${blockId}`);
+                if (!blockElement) continue;
+                const blockTimeInMinutes = timeToMinutes(block.time);
+                if (!nextBlockFound && blockTimeInMinutes >= nowInMinutes) {
+                    blockElement.classList.add('schedule-block-next');
+                    nextBlockFound = true;
+                    const headerLabel = blockElement.querySelector('ion-list-header ion-label');
+                    if (headerLabel) {
+                        const chip = document.createElement('ion-chip');
+                        chip.color = 'primary'; chip.textContent = 'Siguiente'; chip.classList.add('next-chip');
+                        headerLabel.appendChild(chip);
+                    }
+                } else if (blockTimeInMinutes < nowInMinutes) {
+                    blockElement.classList.add('schedule-block-past');
+                }
+            }
+        }
+        async forceUpdate() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) { await registration.unregister(); }
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+            }
+            await showToast('Actualización completada. Recargando...', 'success');
+            setTimeout(() => window.location.reload(true), 1000);
+        }
+        setupRefresher() {
+            if (!this.refresher) return;
+            this.refresher.addEventListener('ionRefresh', async (event) => {
+                const subtitleEl = this.querySelector('#header-subtitle-text');
+                subtitleEl.textContent = 'Buscando actualizaciones...';
+                setTimeout(async () => {
+                     await this.forceUpdate();
+                     event.target.complete();
+                }, 1500);
+            });
+        }
+    }
+    class SettingsPage extends HTMLElement {
+        connectedCallback() {
+            this.innerHTML = `
+                <ion-header translucent="true">
+                    <ion-toolbar>
+                        <ion-title>Configuración</ion-title>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content fullscreen="true" class="ion-padding">
+                    <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
+                    <ion-list inset="true">
+                        <ion-item button="true" id="setup-notifications-button">
+                            <ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon>
+                            <ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label>
+                        </ion-item>
+                        <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank">
+                            <ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon>
+                            <ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label>
+                        </ion-item>
+                    </ion-list>
+                    <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
+                    <ion-list inset="true">
+                        <ion-item button="true" id="force-update-button">
+                            <ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon>
+                            <ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label>
+                        </ion-item>
+                    </ion-list>
+                </ion-content>
+            `;
+            this.setupManualUpdate(); this.setupNotificationInteractions();
+        }
+        async forceUpdate() {
+            const loading = document.createElement('ion-loading'); loading.message = 'Actualizando...'; document.body.appendChild(loading); await loading.present();
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) { await registration.unregister(); }
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+            }
+            await showToast('Actualización completada. Recargando...', 'success');
+            setTimeout(() => window.location.reload(true), 1000);
+            await loading.dismiss();
+        }
+        setupManualUpdate() { const updateButton = this.querySelector('#force-update-button'); if(updateButton) { updateButton.addEventListener('click', () => this.forceUpdate()); } }
+        async scheduleAllNotifications() {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (!reg || !('showTrigger' in Notification.prototype)) { return showToast('Este navegador no soporta la programación de notificaciones.', 'danger'); }
+            const existing = await reg.getNotifications({ includeTriggered: true }); existing.forEach(n => n.close());
+            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Bogota" }));
+            const today = now.getDay(); let count = 0;
+            for (const block of medicationSchedule) {
+                for (const med of block.medications) {
+                    if (!med.days || med.days.includes(today)) {
+                        const minutes = timeToMinutes(block.time);
+                        const notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(minutes/60), minutes%60, 0);
+                        if (notificationTime > now) {
+                            reg.showNotification('Hora de tu medicamento', { body: `Tomar: ${med.name} (${med.dosage})`, tag: `med-${block.time}-${med.name}`, icon: 'icons/icon-192x192.png', badge: 'icons/icon-192x192.png', showTrigger: new TimestampTrigger(notificationTime.getTime()) });
+                            count++;
+                        }
+                    }
+                }
+            }
+            if (count > 0) showToast(`¡Se han programado ${count} recordatorios para hoy!`, 'success'); else showToast('No hay recordatorios pendientes para el resto del día.', 'medium');
+        }
+        setupNotificationInteractions() {
+            const btn = this.querySelector('#setup-notifications-button');
+            btn?.addEventListener('click', async () => {
+                if (!('Notification' in window) || !('serviceWorker' in navigator)) { return showToast('Este navegador no soporta notificaciones.', 'danger'); }
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') this.scheduleAllNotifications(); else showToast('No se ha concedido permiso para notificaciones.', 'warning');
+            });
+        }
+    }
+
+    customElements.define('schedule-page', SchedulePage);
+    customElements.define('settings-page', SettingsPage);
+    const navs = document.querySelectorAll('ion-nav');
+    navs[0].root = 'schedule-page';
+    navs[1].root = 'settings-page';
+    
+    // Registrar el service worker externo
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registrado:', reg))
+            .catch(err => console.error('Error al registrar Service Worker:', err));
+    }
+  </script>
 </body>
 </html>
