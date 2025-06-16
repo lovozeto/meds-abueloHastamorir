@@ -5,6 +5,8 @@
     --header-background-base-rgb: 26, 32, 44; /* RGB de #1A202C */
     --header-background: rgba(var(--header-background-base-rgb), 0.7); /* Header con transparencia */
     --header-text: #FFFFFF; /* Texto blanco en el header */
+    --header-date-time-text: #FFFFFF; /* Color específico para fecha/hora en tema oscuro */
+
 
     --text-primary: #F5F5F7; /* Blanco grisáceo para texto principal */
     --text-secondary: #8E8E93; /* Gris medio para texto secundario/detalles */
@@ -49,6 +51,8 @@
         --header-background-base-rgb: 255, 255, 255; /* RGB de #FFFFFF */
         --header-background: rgba(var(--header-background-base-rgb), 0.8); /* Header con transparencia */
         --header-text: #1D1D1F; /* Negro para texto del header */
+        --header-date-time-text: #6E6E73; /* Color específico para fecha/hora en tema claro (gris oscuro) */
+
 
         --text-primary: #1D1D1F; /* Negro para texto principal */
         --text-secondary: #6E6E73; /* Gris oscuro para texto secundario */
@@ -135,7 +139,7 @@ body {
     grid-row: 1;
     text-align: right;
     font-size: 0.875rem; /* text-sm */
-    color: var(--header-text); /* Asegura que la fecha tenga el color del header */
+    color: var(--header-date-time-text);
     line-height: 1.2;
 }
 
@@ -160,6 +164,7 @@ body {
     display: none; /* Oculta por defecto */
     font-weight: 500;
     white-space: nowrap; /* Evita que se rompa la línea */
+    color: var(--header-date-time-text);
 }
 
 .header-button {
@@ -214,14 +219,9 @@ body {
     overflow: hidden;
     display: none;
 }
-.header.scrolled .header-scrolled-date-time {
-    display: inline-block; /* Muestra el texto corto */
-    opacity: 1;
-    transform: translateY(0);
-    font-size: 0.875rem; /* text-sm */
-    line-height: 1.2;
-    color: var(--header-text); /* Asegura el color adecuado al hacer scroll */
-}
+/* Se quitó la re-definición de color aquí ya que ahora se usa la variable en .header-scrolled-date-time */
+/* .header.scrolled .header-scrolled-date-time { ... } */
+
 
 /* Diseño de la lista de medicamentos */
 .medication-day-section {
@@ -289,13 +289,14 @@ body {
     backdrop-filter: saturate(180%) blur(10px); /* Efecto de desenfoque y saturación para tarjetas */
     -webkit-backdrop-filter: saturate(180%) blur(10px);
     border-radius: 0.75rem; /* rounded-xl */
-    /* *** MODIFICACIÓN AQUÍ: Ajuste de padding-top para hacer espacio al eyebrow *** */
-    padding: 1.5rem 1rem 1rem; /* padding-top 1.5rem, otros lados 1rem */
+    padding: 1rem; /* Se restablece el padding normal */
     margin-bottom: 0.75rem; /* Espacio entre items */
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Sombra suave para las tarjetas */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid var(--card-border); /* Borde sutil */
-    position: relative; /* Necesario para posicionar el eyebrow */
+    /* Removido position: relative; ya que el eyebrow ya no es absoluto */
+    display: flex; /* Añadido para controlar el flujo de los elementos internos */
+    flex-direction: column; /* Apila los elementos verticalmente */
 }
 .medication-item:last-child {
     margin-bottom: 0; /* No margen en el último item de cada lista */
@@ -373,11 +374,9 @@ body {
     border-radius: 0.4rem; /* Aumentado */
     display: inline-flex;
     align-items: center;
-    position: absolute;
-    /* *** MODIFICACIÓN AQUÍ: Ajuste de la posición 'top' y 'left' *** */
-    top: 0.25rem; /* Posiciona el eyebrow ligeramente dentro del padding superior */
-    left: 1rem; /* Ajusta 'left' para que el inicio esté a la misma altura que el padding del card */
-    z-index: 10; /* Asegura que esté por encima de la tarjeta */
+    /* Removido position: absolute;, top, left, z-index */
+    margin-bottom: 0.5rem; /* Espacio debajo del eyebrow */
+    line-height: 1.2; /* Asegura un espaciado consistente */
 }
 .day-specific-eyebrow span { /* Para el emoji */
     margin-right: 0.25rem;
@@ -431,8 +430,7 @@ body {
         padding-left: 0.8rem;
     }
     .medication-item {
-        /* *** MODIFICACIÓN AQUÍ (móvil): Ajuste de padding-top para el eyebrow *** */
-        padding: 1.25rem 0.8rem 0.8rem; /* Ajustado para móvil, top 1.25rem */
+        padding: 0.8rem; /* Se restablece el padding normal para móvil */
         margin-bottom: 0.6rem;
     }
     .medication-name {
@@ -442,8 +440,7 @@ body {
         font-size: 0.8rem;
     }
     .medication-group-header {
-        /* Se usa el mismo estilo que .medication-item, así que se beneficia del padding modificado */
-        padding: 1.25rem 0.8rem 0.8rem; /* Ajustado para móvil, top 1.25rem */
+        padding: 0.8rem; /* Se restablece el padding normal para móvil */
         margin-bottom: 0.6rem;
     }
     .medication-group-header .medication-name {
@@ -451,9 +448,8 @@ body {
     }
     .day-specific-eyebrow {
         font-size: 0.7rem; /* Ajuste para móvil */
-        /* *** MODIFICACIÓN AQUÍ (móvil): Ajuste de posición 'top' y 'left' *** */
-        top: 0.2rem; /* Pequeño ajuste para móvil */
-        left: 0.8rem; /* Pequeño ajuste para móvil */
+        /* Removido top, left */
+        margin-bottom: 0.4rem; /* Espacio debajo del eyebrow en móvil */
         padding: 0.1rem 0.5rem;
     }
     .day-specific-eyebrow span {
