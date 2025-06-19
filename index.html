@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <!-- viewport-fit=cover es importante para Safe Area -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <title>Horario de Medicamentos</title>
   <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
@@ -36,30 +36,11 @@
   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
   <style>
-    /* Estilo de fondo tipo "Ajustes" de iOS */
-    ion-content {
-        --background: #f2f2f7;
-    }
-    body.dark ion-content {
-        --background: #000000;
-    }
-
-    /* SOLUCIÓN 1: Forzar el fondo del header de la hora para que coincida con el fondo de la página */
-    ion-list-header {
-      --background: var(--ion-color-step-50, #f2f2f7);
-    }
-    
-    /* SOLUCIÓN 2: Añadir padding inferior a la tab-bar para respetar la "Safe Area" de iOS */
-    ion-tab-bar {
-      padding-bottom: var(--ion-safe-area-bottom, 0);
-    }
-
-    .page-container {
-        max-width: 768px; 
-        margin-left: auto;
-        margin-right: auto;
-    }
-
+    ion-content { --background: #f2f2f7; }
+    body.dark ion-content { --background: #000000; }
+    ion-list-header { --background: var(--ion-color-step-50, #f2f2f7); }
+    ion-tab-bar { padding-bottom: var(--ion-safe-area-bottom, 0); }
+    .page-container { max-width: 768px; margin-left: auto; margin-right: auto; }
     .dosage-text { font-weight: 500; color: var(--ion-color-primary); margin-top: 8px; }
     .eyebrow { font-size: 0.75rem; font-weight: 500; color: var(--ion-color-medium-shade); display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
     .med-not-today { text-decoration: line-through; opacity: 0.6; }
@@ -84,7 +65,6 @@
       <ion-tab tab="settings">
         <ion-nav></ion-nav>
       </ion-tab>
-
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="schedule">
           <ion-icon name="medkit"></ion-icon>
@@ -102,85 +82,51 @@
     import { medicationSchedule } from './data.js';
 
     const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
-    
     async function showToast(message, color = 'dark', duration = 3000) {
-      const toastController = window.toastController;
-      const toast = await toastController.create({
-        message: message,
-        duration: duration,
-        color: color,
-        position: 'top'
-      });
+      const toast = await window.toastController.create({ message, duration, color, position: 'top' });
       await toast.present();
     }
-
     function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
     function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
     
-    // --- LÓGICA DE ACTUALIZACIÓN (AHORA GLOBAL) ---
     async function forceUpdate(showLoading = false) {
         let loading;
         if (showLoading) {
-            const loadingController = window.loadingController;
-            loading = await loadingController.create({ message: 'Actualizando...' });
+            loading = await window.loadingController.create({ message: 'Actualizando...' });
             await loading.present();
         }
-
         try {
             if ('serviceWorker' in navigator) {
-                console.log('Buscando y desregistrando Service Workers...');
                 const registrations = await navigator.serviceWorker.getRegistrations();
-                for (const registration of registrations) {
-                    await registration.unregister();
-                }
-                console.log('Service Workers desregistrados.');
+                for (const registration of registrations) { await registration.unregister(); }
             }
-
-            console.log('Borrando todas las cachés...');
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-            console.log('Cachés borradas.');
-
             await showToast('Actualización completada. Recargando...', 'success');
             setTimeout(() => window.location.reload(true), 1000);
-
         } catch (error) {
-            console.error('Error al forzar la actualización:', error);
             await showToast('Error al forzar la actualización.', 'danger');
         } finally {
-            if (loading) {
-                await loading.dismiss();
-            }
+            if (loading) { await loading.dismiss(); }
         }
     }
 
-
-    // --- DEFINICIÓN DE PÁGINAS ---
     class SchedulePage extends HTMLElement {
         connectedCallback() {
             this.innerHTML = `
                 <ion-header translucent="true">
-                    <ion-toolbar>
-                        <ion-title>Horario</ion-title>
-                    </ion-toolbar>
+                    <ion-toolbar><ion-title>Horario</ion-title></ion-toolbar>
                 </ion-header>
                 <ion-content fullscreen="true">
                     <div class="page-container">
-                        <ion-refresher slot="fixed" id="refresher">
-                            <ion-refresher-content></ion-refresher-content>
-                        </ion-refresher>
+                        <ion-refresher slot="fixed" id="refresher"><ion-refresher-content></ion-refresher-content></ion-refresher>
                         <ion-header collapse="condense" translucent="true">
-                            <ion-toolbar>
-                                <ion-title size="large" id="large-header-title">Horario</ion-title>
-                            </ion-toolbar>
-                            <ion-toolbar>
-                                <ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note>
-                            </ion-toolbar>
+                            <ion-toolbar><ion-title size="large" id="large-header-title">Horario</ion-title></ion-toolbar>
+                            <ion-toolbar><ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note></ion-toolbar>
                         </ion-header>
                         <div id="schedule-container"></div>
                     </div>
-                </ion-content>
-            `;
+                </ion-content>`;
             this.scheduleContainer = this.querySelector('#schedule-container');
             this.refresher = this.querySelector('#refresher');
             this.renderSchedule(); this.updateHeader(); this.updateScheduleStatus(); this.setupRefresher();
@@ -216,19 +162,14 @@
             subtitleEl.textContent = `${medsTodayCount} medicamentos para hoy`;
         }
         updateScheduleStatus() {
-            const now = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Bogota'}));
-            const nowInMinutes = now.getHours() * 60 + now.getMinutes();
-            let nextBlockFound = false;
+            const now = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Bogota'})); const nowInMinutes = now.getHours() * 60 + now.getMinutes(); let nextBlockFound = false;
             this.querySelectorAll('.schedule-block-past, .schedule-block-next').forEach(el => el.classList.remove('schedule-block-past','schedule-block-next'));
             this.querySelectorAll('.next-chip').forEach(chip => chip.remove());
             for (const block of medicationSchedule) {
-                const blockId = `block-${block.time.replace(/[\s:]/g, '')}`;
-                const blockElement = this.querySelector(`#${blockId}`);
-                if (!blockElement) continue;
+                const blockId = `block-${block.time.replace(/[\s:]/g, '')}`; const blockElement = this.querySelector(`#${blockId}`); if (!blockElement) continue;
                 const blockTimeInMinutes = timeToMinutes(block.time);
                 if (!nextBlockFound && blockTimeInMinutes >= nowInMinutes) {
-                    blockElement.classList.add('schedule-block-next');
-                    nextBlockFound = true;
+                    blockElement.classList.add('schedule-block-next'); nextBlockFound = true;
                     const headerLabel = blockElement.querySelector('ion-list-header ion-label');
                     if (headerLabel) {
                         const chip = document.createElement('ion-chip'); chip.color = 'primary'; chip.textContent = 'Siguiente'; chip.classList.add('next-chip');
@@ -242,9 +183,7 @@
         setupRefresher() {
             if (!this.refresher) return;
             this.refresher.addEventListener('ionRefresh', async (event) => {
-                const subtitleEl = this.querySelector('#header-subtitle-text');
-                subtitleEl.textContent = 'Buscando actualizaciones...';
-                // El refresher llama a la función global sin el loading
+                this.querySelector('#header-subtitle-text').textContent = 'Buscando actualizaciones...';
                 await forceUpdate(false);
                 event.target.complete();
             });
@@ -254,44 +193,24 @@
         connectedCallback() {
             this.innerHTML = `
                 <ion-header translucent="true">
-                    <ion-toolbar>
-                        <ion-title>Configuración</ion-title>
-                    </ion-toolbar>
+                    <ion-toolbar><ion-title>Configuración</ion-title></ion-toolbar>
                 </ion-header>
                 <ion-content fullscreen="true">
                     <div class="page-container ion-padding">
                         <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
                         <ion-list inset="true">
-                            <ion-item button="true" id="setup-notifications-button">
-                                <ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon>
-                                <ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label>
-                            </ion-item>
-                            <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank">
-                                <ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon>
-                                <ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label>
-                            </ion-item>
+                            <ion-item button="true" id="setup-notifications-button"><ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon><ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label></ion-item>
+                            <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank"><ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon><ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label></ion-item>
                         </ion-list>
                         <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
                         <ion-list inset="true">
-                            <ion-item button="true" id="force-update-button">
-                                <ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon>
-                                <ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label>
-                            </ion-item>
+                            <ion-item button="true" id="force-update-button"><ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon><ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label></ion-item>
                         </ion-list>
                     </div>
-                </ion-content>
-            `;
+                </ion-content>`;
             this.setupManualUpdate(); this.setupNotificationInteractions();
         }
-
-        setupManualUpdate() {
-            const updateButton = this.querySelector('#force-update-button');
-            if(updateButton) {
-                // El botón llama a la función global CON el loading
-                updateButton.addEventListener('click', () => forceUpdate(true));
-            }
-        }
-        
+        setupManualUpdate() { this.querySelector('#force-update-button')?.addEventListener('click', () => forceUpdate(true)); }
         async scheduleAllNotifications() {
             const reg = await navigator.serviceWorker.getRegistration();
             if (!reg || !('showTrigger' in Notification.prototype)) { return showToast('Este navegador no soporta la programación de notificaciones.', 'danger'); }
@@ -313,8 +232,7 @@
             if (count > 0) showToast(`¡Se han programado ${count} recordatorios para hoy!`, 'success'); else showToast('No hay recordatorios pendientes para el resto del día.', 'medium');
         }
         setupNotificationInteractions() {
-            const btn = this.querySelector('#setup-notifications-button');
-            btn?.addEventListener('click', async () => {
+            this.querySelector('#setup-notifications-button')?.addEventListener('click', async () => {
                 if (!('Notification' in window) || !('serviceWorker' in navigator)) { return showToast('Este navegador no soporta notificaciones.', 'danger'); }
                 const perm = await Notification.requestPermission();
                 if (perm === 'granted') this.scheduleAllNotifications(); else showToast('No se ha concedido permiso para notificaciones.', 'warning');
@@ -329,9 +247,7 @@
     navs[1].root = 'settings-page';
     
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registrado:', reg))
-            .catch(err => console.error('Error al registrar Service Worker:', err));
+        navigator.serviceWorker.register('/sw.js').then(reg => console.log('Service Worker registrado:', reg)).catch(err => console.error('Error al registrar Service Worker:', err));
     }
   </script>
 </body>

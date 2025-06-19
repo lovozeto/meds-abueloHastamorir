@@ -3,13 +3,73 @@
 // Para actualizar el horario, solo tienes que editar este archivo.
 
 export const medicationSchedule = [
-    { time: "6:00 am", medications: [ { name: "Aciclovir Genfar", description: "Antiviral", dosage: "Dosis 1 de 3" }, { name: "Hioscina N-butilbromo", description: "Antiespasmódico", dosage: "Dosis 1 de 3" }, { name: "Acetaminofen", description: "Analgésico", dosage: "Dosis 1 de 3", note: { text: "Opcional si hay dolor", level: "important" } } ]},
-    { time: "8:30 am", medications: [ { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "1 enjuague", note: { text: "Antes del desayuno", level: "regular" } } ]},
-    { time: "9:00 am", medications: [ { name: "Medicamentos de la mañana", description: "Tomar todos juntos con el desayuno", dosage: "N/A" }, { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 1 de 2" }, { name: "Omeprazol (Esomeprazol)", description: "Protector gástrico", dosage: "1 pastilla" }, { name: "Sitagliptina + Metformina (Janumet)", description: "Antidiabético", dosage: "Dosis 1 de 2" }, { name: "Alopurinol (Zyloprim)", description: "Ácido úrico", dosage: "1 pastilla" }, { name: "Colchicina (Colchimedio)", description: "Gota", dosage: "1 pastilla" }, { name: "Metoprolol Succinato (Betaloc ZOK)", description: "Antihipertensivo", dosage: "1 pastilla" }, { name: "Tiotropio (Spiriva Respimat)", description: "Broncodilatador", dosage: "2 puffs" }, { name: "Amlodipino", description: "Antihipertensivo", dosage: "1 pastilla" }, { name: "Trimetoprim", description: "Antibiótico", dosage: "1 pastilla", days: [1, 3, 5] }, { name: "Lactulosa (Constilax)", description: "Laxante", dosage: "15 ml", note: { text: "Solo si hay estreñimiento", level: "important" } } ]},
-    { time: "12:30 pm", medications: [ { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "1 enjuague", note: { text: "Antes del almuerzo", level: "regular" } } ]},
-    { time: "2:00 pm", medications: [ { name: "Aciclovir Genfar", description: "Antiviral", dosage: "Dosis 2 de 3" }, { name: "Hioscina N-butilbromo", description: "Antiespasmódico", dosage: "Dosis 2 de 3" }, { name: "Acetaminofen", description: "Analgésico", dosage: "Dosis 2 de 3", note: { text: "Opcional si hay dolor", level: "important" } }, { name: "Vitamina D3", description: "Vitamina", dosage: "1 pastilla", note: { text: "Con el almuerzo", level: "regular" } } ]},
-    { time: "7:30 pm", medications: [ { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "1 enjuague", note: { text: "Antes de la cena", level: "regular" } } ]},
-    { time: "9:00 pm", medications: [ { name: "Medicamentos de la noche", description: "Tomar todos juntos con la cena", dosage: "N/A" }, { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 2 de 2" }, { name: "Sitagliptina + Metformina (Janumet)", description: "Antidiabético", dosage: "Dosis 2 de 2" }, { name: "Trelegy", description: "Broncodilatador", dosage: "1 puff" } ]},
-    { time: "10:00 pm", medications: [ { name: "Aciclovir Genfar", description: "Antiviral", dosage: "Dosis 3 de 3" }, { name: "Hioscina N-butilbromo", description: "Antiespasmódico", dosage: "Dosis 3 de 3" }, { name: "Acetaminofen", description: "Analgésico", dosage: "Dosis 3 de 3", note: { text: "Opcional si hay dolor", level: "important" } }, { name: "Insulina Glargina", description: "Control de glucosa", dosage: "según medición", note: { text: "Después de la última comida", level: "critical" } } ]}
-  ];
-  
+  { 
+    time: "6:00 am", 
+    medications: [ 
+      { name: "Bromuro de Ipratropio", description: "Broncodilatador", dosage: "3 puffs" }
+    ]
+  },
+  { 
+    time: "8:00 am", 
+    medications: [ 
+      { name: "Omeprazol (Esomeprazol)", description: "Protector gástrico", dosage: "1 pastilla" },
+      { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 1 de 2" },
+      { name: "Metoprolol (Betaloc ZOK)", description: "Antihipertensivo", dosage: "1 pastilla" },
+      { name: "Amlodipino", description: "Antihipertensivo", dosage: "1 pastilla" },
+      { name: "Colchicina", description: "Gota", dosage: "1 pastilla" },
+      { name: "Alopurinol", description: "Ácido úrico", dosage: "1 pastilla" },
+      { name: "Aciclovir", description: "Antiviral", dosage: "1 pastilla" },
+      { name: "Trimetropim", description: "Antibiótico", dosage: "1 pastilla", days: [0, 2, 4] } // Dom, Mar, Jue
+    ]
+  },
+  { 
+    time: "8:45 am", 
+    medications: [ 
+      { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "5cm con jeringa", note: { text: "Aplicar en la boca", level: "regular" } } 
+    ]
+  },
+  { 
+    time: "11:00 am", 
+    medications: [ 
+      { name: "Tiotropio (Spiriva)", description: "Broncodilatador", dosage: "2 puffs" } 
+    ]
+  },
+  { 
+    time: "12:30 pm", 
+    medications: [ 
+      { name: "Sitagliptina + Metformina (Janumet)", description: "Antidiabético", dosage: "1 pastilla" },
+      { name: "Vitamina D", description: "Vitamina", dosage: "1 pastilla", note: { text: "Con el almuerzo", level: "regular" } }
+    ]
+  },
+  { 
+    time: "1:30 pm", 
+    medications: [ 
+      { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "Aplicar", note: { text: "Lavado bucal", level: "regular" } }
+    ]
+  },
+  { 
+    time: "2:00 pm", 
+    medications: [ 
+      { name: "Bromuro de Ipratropio", description: "Broncodilatador", dosage: "3 puffs" }
+    ]
+  },
+  { 
+    time: "8:00 pm", 
+    medications: [ 
+      { name: "Fluticasona (Relvar)", description: "Corticoide inhalado", dosage: "1 puff" },
+      { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 2 de 2" }
+    ]
+  },
+  {
+    time: "8:45 pm",
+    medications: [
+      { name: "Albisan (Sulfato Oral)", description: "Lavado bucal", dosage: "Aplicar", note: { text: "Lavado bucal", level: "regular" } }
+    ]
+  },
+  { 
+    time: "10:00 pm", 
+    medications: [ 
+      { name: "Bromuro de Ipratropio", description: "Broncodilatador", dosage: "3 puffs" }
+    ]
+  }
+];

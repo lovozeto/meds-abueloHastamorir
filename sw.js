@@ -1,6 +1,6 @@
-const CACHE_NAME = 'horario-medicamentos-v-final-3'; // Nueva versión de caché
+const CACHE_NAME = 'horario-medicamentos-v-final-5'; // Nueva versión de caché
 
-// Lista actualizada con todos los iconos del manifest
+// Lista actualizada con todos los archivos necesarios
 const urlsToCache = [
   '/',
   '/index.html',
@@ -34,7 +34,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Si está en caché, lo devolvemos. Si no, lo buscamos en la red.
         return response || fetch(event.request);
       })
   );
