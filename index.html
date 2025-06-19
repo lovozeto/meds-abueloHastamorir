@@ -8,8 +8,8 @@
   <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
   <meta name="theme-color" content="#f2f2f7">
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-180x180.png">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-180x180.png">
 
   <meta property="og:title" content="Horario de Medicamentos">
   <meta property="og:description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
@@ -81,7 +81,6 @@
   <script type="module">
     import { medicationList } from './data.js';
 
-    // --- FUNCIONES AUXILIARES (sin cambios) ---
     const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
     async function showToast(message, color = 'dark', duration = 3000) {
       const toast = await window.toastController.create({ message, duration, color, position: 'top' });
@@ -90,7 +89,6 @@
     function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
     function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
     
-    // --- LÓGICA DE TRANSFORMACIÓN DE DATOS (sin cambios) ---
     function processMedicationData(list) {
         const scheduleByTime = {};
         list.forEach(med => {
@@ -105,7 +103,6 @@
     }
     const medicationSchedule = processMedicationData(medicationList);
     
-    // --- LÓGICA DE ACTUALIZACIÓN (sin cambios) ---
     async function forceUpdate(showLoading = false) {
         let loading;
         if (showLoading) {
@@ -128,7 +125,6 @@
         }
     }
 
-    // --- DEFINICIÓN DE PÁGINAS (Web Components) ---
     class SchedulePage extends HTMLElement {
         connectedCallback() {
             this.innerHTML = `
@@ -257,8 +253,7 @@
             });
         }
     }
-
-    // --- INICIALIZACIÓN DE LA APP (LA FORMA CORRECTA) ---
+    
     function initializeApp() {
         customElements.define('schedule-page', SchedulePage);
         customElements.define('settings-page', SettingsPage);
@@ -267,13 +262,12 @@
         navs[1].root = 'settings-page';
         
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js') // CORREGIDO: Ruta relativa
+            // CORREGIDO: Usar una ruta relativa
+            navigator.serviceWorker.register('./sw.js')
                 .then(reg => console.log('Service Worker registrado:', reg))
                 .catch(err => console.error('Error al registrar Service Worker:', err));
         }
     }
-
-    // Esperamos a que Ionic esté listo antes de arrancar nuestra lógica
     document.addEventListener('ionAppDidLoad', initializeApp);
 
   </script>
