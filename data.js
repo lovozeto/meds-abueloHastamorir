@@ -57,7 +57,8 @@ export const medicationSchedule = [
     time: "8:00 pm", 
     medications: [ 
       { name: "Fluticasona (Relvar)", description: "Corticoide inhalado", dosage: "1 puff" },
-      { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 2 de 2" }
+      { name: "Apixaban (Eliquis)", description: "Anticoagulante", dosage: "Dosis 2 de 2" },
+      { name: "Loratadina", description: "Antihistamínico", dosage: "1 pastilla" }
     ]
   },
   {
