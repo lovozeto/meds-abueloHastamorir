@@ -1,5 +1,6 @@
 // data.js
-// Nueva estructura organizada por medicamento para una gestión más sencilla.
+// Este archivo contiene únicamente la lista de medicamentos.
+// Para actualizar el horario, solo tienes que editar este archivo.
 
 export const medicationList = [
   {
@@ -83,8 +84,8 @@ export const medicationList = [
     note: { text: "Aplicar en la boca", level: "regular" },
     schedules: [
       { time: "8:45 am" },
-      { time: "1:30 pm" },
-      { time: "8:45 pm" }
+      { time: "1:30 pm", dosage: "Aplicar" },
+      { time: "8:45 pm", dosage: "Aplicar" }
     ]
   },
   {

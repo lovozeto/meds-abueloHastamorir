@@ -1,19 +1,19 @@
-const CACHE_NAME = 'horario-medicamentos-v-final-5'; // Nueva versión de caché
+const CACHE_NAME = 'horario-medicamentos-v-final-8'; // Nueva versión para forzar actualización
 
-// Lista actualizada con todos los archivos necesarios
+// Usamos rutas relativas para que funcione en GitHub Pages
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/data.js',
-  '/manifest.json',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-180x180.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  './',
+  './index.html',
+  './data.js',
+  './manifest.json',
+  './icons/icon-72x72.png',
+  './icons/icon-96x96.png',
+  './icons/icon-128x128.png',
+  './icons/icon-144x144.png',
+  './icons/icon-152x152.png',
+  './icons/icon-180x180.png',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
   'https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css',
   'https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js',
   'https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js'
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Si está en caché, lo devolvemos. Si no, lo buscamos en la red.
+        // Devuelve desde la caché o, si no, búscalo en la red.
         return response || fetch(event.request);
       })
   );
@@ -62,7 +62,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       if (clientList.length > 0) return clientList[0].focus();
-      return clients.openWindow('/');
+      return clients.openWindow('./'); // Asegurarnos de que abra la ruta correcta
     })
   );
 });
