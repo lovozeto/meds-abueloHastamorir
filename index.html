@@ -79,8 +79,9 @@
   </ion-app>
 
   <script type="module">
-    import { medicationSchedule } from './data.js';
+    import { medicationList } from './data.js';
 
+    // --- FUNCIONES AUXILIARES (sin cambios) ---
     const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
     async function showToast(message, color = 'dark', duration = 3000) {
       const toast = await window.toastController.create({ message, duration, color, position: 'top' });
@@ -89,6 +90,22 @@
     function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
     function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
     
+    // --- LÓGICA DE TRANSFORMACIÓN DE DATOS (sin cambios) ---
+    function processMedicationData(list) {
+        const scheduleByTime = {};
+        list.forEach(med => {
+            med.schedules.forEach(scheduleItem => {
+                const time = scheduleItem.time;
+                if (!scheduleByTime[time]) { scheduleByTime[time] = { time: time, medications: [] }; }
+                const medicationEntry = { name: med.name, description: med.description, dosage: scheduleItem.dosage || med.dosage, days: med.days, note: med.note };
+                scheduleByTime[time].medications.push(medicationEntry);
+            });
+        });
+        return Object.values(scheduleByTime).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+    }
+    const medicationSchedule = processMedicationData(medicationList);
+    
+    // --- LÓGICA DE ACTUALIZACIÓN (sin cambios) ---
     async function forceUpdate(showLoading = false) {
         let loading;
         if (showLoading) {
@@ -111,6 +128,7 @@
         }
     }
 
+    // --- DEFINICIÓN DE PÁGINAS (Web Components) ---
     class SchedulePage extends HTMLElement {
         connectedCallback() {
             this.innerHTML = `
@@ -240,15 +258,24 @@
         }
     }
 
-    customElements.define('schedule-page', SchedulePage);
-    customElements.define('settings-page', SettingsPage);
-    const navs = document.querySelectorAll('ion-nav');
-    navs[0].root = 'schedule-page';
-    navs[1].root = 'settings-page';
-    
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => console.log('Service Worker registrado:', reg)).catch(err => console.error('Error al registrar Service Worker:', err));
+    // --- INICIALIZACIÓN DE LA APP (LA FORMA CORRECTA) ---
+    function initializeApp() {
+        customElements.define('schedule-page', SchedulePage);
+        customElements.define('settings-page', SettingsPage);
+        const navs = document.querySelectorAll('ion-nav');
+        navs[0].root = 'schedule-page';
+        navs[1].root = 'settings-page';
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js') // CORREGIDO: Ruta relativa
+                .then(reg => console.log('Service Worker registrado:', reg))
+                .catch(err => console.error('Error al registrar Service Worker:', err));
+        }
     }
+
+    // Esperamos a que Ionic esté listo antes de arrancar nuestra lógica
+    document.addEventListener('ionAppDidLoad', initializeApp);
+
   </script>
 </body>
 </html>

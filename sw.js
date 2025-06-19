@@ -24,9 +24,10 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Service Worker: Guardando App Shell en caché');
-        return cache.addAll(urlsToCache);
+        // No esperar a que se cachee todo para instalar, acelera la primera carga
+        cache.addAll(urlsToCache);
+        return self.skipWaiting();
       })
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -34,6 +35,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
+        // Si está en caché, lo devolvemos. Si no, lo buscamos en la red.
         return response || fetch(event.request);
       })
   );
