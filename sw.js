@@ -5,7 +5,7 @@ const urlsToCache = [
   BASE_PATH + 'index.html',
   BASE_PATH + 'manifest.json',
   BASE_PATH + 'styles.css',
-  // agregar íconos u otros recursos
+  // Puedes agregar otros archivos necesarios como íconos aquí
 ];
 
 self.addEventListener('install', e => {
