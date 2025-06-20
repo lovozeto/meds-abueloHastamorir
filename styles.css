@@ -1,0 +1,69 @@
+ion-content {
+  --background: #f2f2f7;
+  padding-top: 56px; /* Para espacio con header translúcido */
+}
+
+body.dark ion-content {
+  --background: #000000;
+}
+
+ion-list-header {
+  --background: var(--ion-color-step-50, #f2f2f7);
+}
+
+ion-tab-bar {
+  padding-bottom: var(--ion-safe-area-bottom, 0);
+}
+
+.page-container {
+  max-width: 768px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dosage-text {
+  font-weight: 500;
+  color: var(--ion-color-primary);
+  margin-top: 8px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ion-color-medium-shade);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.med-not-today {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.schedule-block-past {
+  opacity: 0.5;
+}
+
+.schedule-block-next ion-list {
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
+}
+
+body.dark .schedule-block-next ion-list {
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+}
+
+.next-chip {
+  margin-left: 12px;
+  font-size: 0.8rem;
+}
+
+ion-header[translucent] {
+  --background: transparent;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: none;
+}
