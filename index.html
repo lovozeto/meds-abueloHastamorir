@@ -1,60 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Horario de Medicamentos</title>
-  <meta name="description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
-  <meta name="theme-color" content="#f2f2f7">
-
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-180x180.png">
-
-  <meta property="og:title" content="Horario de Medicamentos">
-  <meta property="og:description" content="Una aplicación simple y clara para seguir un horario de medicamentos.">
-  <meta property="og:image" content="https://lovozeto.github.io/meds-abueloHastamorir/icons/share-image.png">
-  <meta property="og:url" content="https://lovozeto.github.io/meds-abueloHastamorir/">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <script>
-    window.Ionic = {
-      config: {
-        mode: (() => {
-          const userAgent = navigator.userAgent;
-          const isAndroid = /Android/i.test(userAgent);
-          if (isAndroid) {
-            return 'md';
-          }
-          return 'ios';
-        })()
-      }
-    };
-  </script>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"/>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-  <style>
-    ion-content { --background: #f2f2f7; }
-    body.dark ion-content { --background: #000000; }
-    ion-list-header { --background: var(--ion-color-step-50, #f2f2f7); }
-    ion-tab-bar { padding-bottom: var(--ion-safe-area-bottom, 0); }
-    .page-container { max-width: 768px; margin-left: auto; margin-right: auto; }
-    .dosage-text { font-weight: 500; color: var(--ion-color-primary); margin-top: 8px; }
-    .eyebrow { font-size: 0.75rem; font-weight: 500; color: var(--ion-color-medium-shade); display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-    .med-not-today { text-decoration: line-through; opacity: 0.6; }
-    .schedule-block-past { opacity: 0.5; }
-    .schedule-block-next ion-list {
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
-        transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
-    }
-    body.dark .schedule-block-next ion-list {
-        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
-    }
-    .next-chip { margin-left: 12px; font-size: 0.8rem; }
-  </style>
+  
+  <!-- Referencia al manifiesto con ruta absoluta -->
+  <link rel="manifest" href="/meds-abueloHastamorir/manifest.json" />
+  
+  <!-- Ionic Core CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+  
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <ion-app>
@@ -78,208 +36,10 @@
     </ion-tabs>
   </ion-app>
 
-  <script type="module">
-    import { medicationList } from 'data.js';
-
-    // --- FUNCIONES AUXILIARES ---
-    const timeToMinutes = (t) => { const [h,p]=t.split(' '); let [hr,m]=h.split(':').map(Number); if(p.toLowerCase()==='pm'&&hr!==12)hr+=12; if(p.toLowerCase()==='am'&&hr===12)hr=0; return hr*60+m; };
-    async function showToast(message, color = 'dark', duration = 3000) {
-      const toast = document.createElement('ion-toast');
-      toast.message = message;
-      toast.duration = duration;
-      toast.color = color;
-      toast.position = 'top';
-      document.body.appendChild(toast);
-      return toast.present();
-    }
-    function generateDayText(d) { return d.map(i=>["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][i]).join(', '); }
-    function getColorForNoteLevel(l) { return {'critical':'danger','important':'warning'}[l]||'success'; }
-    
-    // --- LÓGICA DE TRANSFORMACIÓN DE DATOS ---
-    function processMedicationData(list) {
-        const scheduleByTime = {};
-        list.forEach(med => {
-            med.schedules.forEach(scheduleItem => {
-                const time = scheduleItem.time;
-                if (!scheduleByTime[time]) { scheduleByTime[time] = { time: time, medications: [] }; }
-                const medicationEntry = { name: med.name, description: med.description, dosage: scheduleItem.dosage || med.dosage, days: med.days, note: med.note };
-                scheduleByTime[time].medications.push(medicationEntry);
-            });
-        });
-        return Object.values(scheduleByTime).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-    }
-    const medicationSchedule = processMedicationData(medicationList);
-    
-    // --- LÓGICA DE ACTUALIZACIÓN ---
-    async function forceUpdate(showLoading = false) {
-        let loading;
-        if (showLoading) {
-            loading = document.createElement('ion-loading');
-            loading.message = 'Actualizando...';
-            document.body.appendChild(loading);
-            await loading.present();
-        }
-        try {
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (const registration of registrations) { await registration.unregister(); }
-            }
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-            await showToast('Actualización completada. Recargando...', 'success');
-            setTimeout(() => window.location.reload(true), 1000);
-        } catch (error) {
-            await showToast('Error al forzar la actualización.', 'danger');
-        } finally {
-            if (loading) { await loading.dismiss(); }
-        }
-    }
-
-    // --- DEFINICIÓN DE PÁGINAS (Web Components) ---
-    class SchedulePage extends HTMLElement {
-        connectedCallback() {
-            this.innerHTML = `
-                <ion-header translucent="true">
-                    <ion-toolbar><ion-title>Horario</ion-title></ion-toolbar>
-                </ion-header>
-                <ion-content fullscreen="true">
-                    <div class="page-container">
-                        <ion-refresher slot="fixed" id="refresher"><ion-refresher-content></ion-refresher-content></ion-refresher>
-                        <ion-header collapse="condense" translucent="true">
-                            <ion-toolbar><ion-title size="large" id="large-header-title">Horario</ion-title></ion-toolbar>
-                            <ion-toolbar><ion-note id="header-subtitle-text" class="ion-padding-start">Calculando...</ion-note></ion-toolbar>
-                        </ion-header>
-                        <div id="schedule-container"></div>
-                    </div>
-                </ion-content>`;
-            this.scheduleContainer = this.querySelector('#schedule-container');
-            this.refresher = this.querySelector('#refresher');
-            this.renderSchedule(); this.updateHeader(); this.updateScheduleStatus(); this.setupRefresher();
-            this.updateInterval = setInterval(() => this.updateScheduleStatus(), 60000);
-        }
-        disconnectedCallback() { clearInterval(this.updateInterval); }
-        renderSchedule() {
-            if (!this.scheduleContainer) return; this.scheduleContainer.innerHTML = ''; const today = new Date().getDay();
-            medicationSchedule.forEach(block => {
-                const blockContainer = document.createElement('div'); blockContainer.id = `block-${block.time.replace(/[\s:]/g, '')}`; blockContainer.classList.add('ion-padding-horizontal');
-                const listHeader = document.createElement('ion-list-header'); listHeader.innerHTML = `<ion-label>${block.time}</ion-label>`; blockContainer.appendChild(listHeader);
-                const list = document.createElement('ion-list'); list.inset = true;
-                block.medications.forEach(med => {
-                    const item = document.createElement('ion-item'); let itemHTML = `<ion-label>`;
-                    if (med.days) { itemHTML += `<p class="eyebrow"><ion-icon name="calendar-outline"></ion-icon> Tomar: ${generateDayText(med.days)}</p>`; }
-                    itemHTML += `<h2>${med.name}</h2><p>${med.description}</p>`;
-                    if (med.dosage) { itemHTML += `<p class="dosage-text">${med.dosage}</p>`; }
-                    if (med.note) { itemHTML += `<ion-chip color="${getColorForNoteLevel(med.note.level)}"><ion-label>${med.note.text}</ion-label></ion-chip>`; }
-                    itemHTML += `</ion-label>`; item.innerHTML = itemHTML;
-                    if (med.days && !med.days.includes(today)) { item.classList.add('med-not-today'); }
-                    list.appendChild(item);
-                });
-                blockContainer.appendChild(list); this.scheduleContainer.appendChild(blockContainer);
-            });
-        }
-        updateHeader() {
-            const titleEl = this.querySelector('#large-header-title'); const subtitleEl = this.querySelector('#header-subtitle-text'); if (!titleEl || !subtitleEl) return;
-            const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-            const dateOptions = { weekday: 'long' };
-            let formattedDate = new Intl.DateTimeFormat('es-CO', dateOptions).format(now);
-            titleEl.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-            const today = now.getDay(); const medsTodayCount = medicationSchedule.reduce((count, block) => count + block.medications.filter(med => !med.days || med.days.includes(today)).length, 0);
-            subtitleEl.textContent = `${medsTodayCount} medicamentos para hoy`;
-        }
-        updateScheduleStatus() {
-            const now = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Bogota'})); const nowInMinutes = now.getHours() * 60 + now.getMinutes(); let nextBlockFound = false;
-            this.querySelectorAll('.schedule-block-past, .schedule-block-next').forEach(el => el.classList.remove('schedule-block-past','schedule-block-next'));
-            this.querySelectorAll('.next-chip').forEach(chip => chip.remove());
-            for (const block of medicationSchedule) {
-                const blockId = `block-${block.time.replace(/[\s:]/g, '')}`; const blockElement = this.querySelector(`#${blockId}`); if (!blockElement) continue;
-                const blockTimeInMinutes = timeToMinutes(block.time);
-                if (!nextBlockFound && blockTimeInMinutes >= nowInMinutes) {
-                    blockElement.classList.add('schedule-block-next'); nextBlockFound = true;
-                    const headerLabel = blockElement.querySelector('ion-list-header ion-label');
-                    if (headerLabel) {
-                        const chip = document.createElement('ion-chip'); chip.color = 'primary'; chip.textContent = 'Siguiente'; chip.classList.add('next-chip');
-                        headerLabel.appendChild(chip);
-                    }
-                } else if (blockTimeInMinutes < nowInMinutes) {
-                    blockElement.classList.add('schedule-block-past');
-                }
-            }
-        }
-        setupRefresher() {
-            if (!this.refresher) return;
-            this.refresher.addEventListener('ionRefresh', async (event) => {
-                this.querySelector('#header-subtitle-text').textContent = 'Buscando actualizaciones...';
-                await forceUpdate(false);
-                event.target.complete();
-            });
-        }
-    }
-    class SettingsPage extends HTMLElement {
-        connectedCallback() {
-            this.innerHTML = `
-                <ion-header translucent="true">
-                    <ion-toolbar><ion-title>Configuración</ion-title></ion-toolbar>
-                </ion-header>
-                <ion-content fullscreen="true">
-                    <div class="page-container ion-padding">
-                        <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
-                        <ion-list inset="true">
-                            <ion-item button="true" id="setup-notifications-button"><ion-icon color="primary" slot="start" name="notifications-outline"></ion-icon><ion-label><h2>Activar Notificaciones</h2><p>Para Android y Escritorio</p></ion-label></ion-item>
-                            <ion-item button="true" href="webcal://p62-caldav.icloud.com/published/2/MTA1MTM2NTQ4MzEwNTEzNhRak2GL1HVQUSeGOw06am9vyGuT7jrdJ9Ujg8HxTTi9KF6vtvStG6SlZ3taPvX6YIjijFm-gnc8Yqcjux-DlPI" target="_blank"><ion-icon color="primary" slot="start" name="calendar-outline"></ion-icon><ion-label><h2>Suscribir al Calendario</h2><p>Para iPhone y iPad</p></ion-label></ion-item>
-                        </ion-list>
-                        <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
-                        <ion-list inset="true">
-                            <ion-item button="true" id="force-update-button"><ion-icon color="danger" slot="start" name="refresh-circle-outline"></ion-icon><ion-label><h2>Forzar Actualización</h2><p>Borra la caché y recarga la app</p></ion-label></ion-item>
-                        </ion-list>
-                    </div>
-                </ion-content>`;
-            this.setupManualUpdate(); this.setupNotificationInteractions();
-        }
-        setupManualUpdate() { this.querySelector('#force-update-button')?.addEventListener('click', () => forceUpdate(true)); }
-        async scheduleAllNotifications() {
-            const reg = await navigator.serviceWorker.getRegistration();
-            if (!reg || !('showTrigger' in Notification.prototype)) { return showToast('Este navegador no soporta la programación de notificaciones.', 'danger'); }
-            const existing = await reg.getNotifications({ includeTriggered: true }); existing.forEach(n => n.close());
-            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Bogota" }));
-            const today = now.getDay(); let count = 0;
-            for (const block of medicationSchedule) {
-                for (const med of block.medications) {
-                    if (!med.days || med.days.includes(today)) {
-                        const minutes = timeToMinutes(block.time);
-                        const notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(minutes/60), minutes%60, 0);
-                        if (notificationTime > now) {
-                            reg.showNotification('Hora de tu medicamento', { body: `Tomar: ${med.name} (${med.dosage})`, tag: `med-${block.time}-${med.name}`, icon: 'icons/icon-192x192.png', badge: 'icons/icon-192x192.png', showTrigger: new TimestampTrigger(notificationTime.getTime()) });
-                            count++;
-                        }
-                    }
-                }
-            }
-            if (count > 0) showToast(`¡Se han programado ${count} recordatorios para hoy!`, 'success'); else showToast('No hay recordatorios pendientes para el resto del día.', 'medium');
-        }
-        setupNotificationInteractions() {
-            this.querySelector('#setup-notifications-button')?.addEventListener('click', async () => {
-                if (!('Notification' in window) || !('serviceWorker' in navigator)) { return showToast('Este navegador no soporta notificaciones.', 'danger'); }
-                const perm = await Notification.requestPermission();
-                if (perm === 'granted') this.scheduleAllNotifications(); else showToast('No se ha concedido permiso para notificaciones.', 'warning');
-            });
-        }
-    }
-
-    function initializeApp() {
-        customElements.define('schedule-page', SchedulePage);
-        customElements.define('settings-page', SettingsPage);
-        const navs = document.querySelectorAll('ion-nav');
-        navs[0].root = 'schedule-page';
-        navs[1].root = 'settings-page';
-        
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(reg => console.log('Service Worker registrado:', reg)).catch(err => console.error('Error al registrar Service Worker:', err));
-        }
-    }
-    
-    // CORREGIDO: Esperar a que la app esté completamente lista para correr nuestra lógica
-    document.addEventListener('ionAppDidLoad', initializeApp);
-
-  </script>
+  <!-- Scripts modularizados -->
+  <script type="module" src="data.js"></script>
+  <script type="module" src="schedule-page.js"></script>
+  <script type="module" src="settings-page.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
