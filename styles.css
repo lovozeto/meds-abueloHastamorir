@@ -1,32 +1,66 @@
+/* Fondo general y padding para ion-content */
 ion-content {
   --background: #f2f2f7;
-  padding-top: 56px; /* Para espacio con header translúcido */
+  padding-top: 56px; /* espacio para header translúcido */
+  padding-bottom: calc(56px + env(safe-area-inset-bottom)); /* espacio para tab bar + safe area */
 }
 
+/* Fondo oscuro para modo dark */
 body.dark ion-content {
   --background: #000000;
 }
 
+/* Header translúcido con efecto blur */
+ion-header[translucent] {
+  --background: transparent;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: none;
+}
+
+/* Tab bar ajustado para safe area */
+ion-tab-bar {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Estilo para ion-list-header */
 ion-list-header {
   --background: var(--ion-color-step-50, #f2f2f7);
 }
 
-ion-tab-bar {
-  padding-bottom: var(--ion-safe-area-bottom, 0);
-}
-
+/* Contenedor de página con ancho máximo y centrado */
 .page-container {
   max-width: 768px;
   margin-left: auto;
   margin-right: auto;
 }
 
+/* Textos y espaciado dentro de ion-item */
+ion-item ion-label, ion-label, p, h2, h1, h3 {
+  line-height: 1.4;
+  margin-bottom: 0.25rem;
+}
+
+/* Espacio extra para párrafos */
+p {
+  margin-bottom: 0.5rem;
+}
+
+/* Estilo para títulos secundarios */
+h2 {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+
+/* Dosificación destacada */
 .dosage-text {
   font-weight: 500;
   color: var(--ion-color-primary);
   margin-top: 8px;
 }
 
+/* Texto pequeño y tenue */
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 500;
@@ -37,33 +71,31 @@ ion-tab-bar {
   margin-bottom: 4px;
 }
 
+/* Medicamentos que no son para hoy */
 .med-not-today {
   text-decoration: line-through;
   opacity: 0.6;
 }
 
+/* Bloques de horario pasados */
 .schedule-block-past {
   opacity: 0.5;
 }
 
+/* Estilo para el bloque de horario siguiente */
 .schedule-block-next ion-list {
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
   transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
 }
 
+/* Estilo en modo oscuro para bloque siguiente */
 body.dark .schedule-block-next ion-list {
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
 }
 
+/* Chip indicador del siguiente bloque */
 .next-chip {
   margin-left: 12px;
   font-size: 0.8rem;
-}
-
-ion-header[translucent] {
-  --background: transparent;
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: none;
 }
