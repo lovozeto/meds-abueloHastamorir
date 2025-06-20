@@ -1,11 +1,6 @@
-import { medicationList } from './data.js';
+import { medicationSchedule, timeToMinutes, generateDayText, getColorForNoteLevel } from './shared.js';
 
 class SchedulePage extends HTMLElement {
-  constructor() {
-    super();
-    this.medicationSchedule = this.processMedicationData(medicationList);
-  }
-
   connectedCallback() {
     this.innerHTML = `
       <ion-header translucent="true" collapse="condense">
@@ -48,49 +43,12 @@ class SchedulePage extends HTMLElement {
     clearInterval(this.updateInterval);
   }
 
-  timeToMinutes(t) {
-    const [h, p] = t.split(' ');
-    let [hr, m] = h.split(':').map(Number);
-    if (p.toLowerCase() === 'pm' && hr !== 12) hr += 12;
-    if (p.toLowerCase() === 'am' && hr === 12) hr = 0;
-    return hr * 60 + m;
-  }
-
-  generateDayText(d) {
-    return d.map(i => ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][i]).join(', ');
-  }
-
-  getColorForNoteLevel(l) {
-    return {'critical':'danger','important':'warning'}[l] || 'success';
-  }
-
-  processMedicationData(list) {
-    const scheduleByTime = {};
-    list.forEach(med => {
-      med.schedules.forEach(scheduleItem => {
-        const time = scheduleItem.time;
-        if (!scheduleByTime[time]) {
-          scheduleByTime[time] = { time: time, medications: [] };
-        }
-        const medicationEntry = {
-          name: med.name,
-          description: med.description,
-          dosage: scheduleItem.dosage || med.dosage,
-          days: med.days,
-          note: med.note
-        };
-        scheduleByTime[time].medications.push(medicationEntry);
-      });
-    });
-    return Object.values(scheduleByTime).sort((a, b) => this.timeToMinutes(a.time) - this.timeToMinutes(b.time));
-  }
-
   renderSchedule() {
     if (!this.scheduleContainer) return;
     this.scheduleContainer.innerHTML = '';
     const today = new Date().getDay();
 
-    this.medicationSchedule.forEach(block => {
+    medicationSchedule.forEach(block => {
       const blockContainer = document.createElement('div');
       blockContainer.id = `block-${block.time.replace(/[\s:]/g, '')}`;
       blockContainer.classList.add('ion-padding-horizontal');
@@ -106,14 +64,14 @@ class SchedulePage extends HTMLElement {
         const item = document.createElement('ion-item');
         let itemHTML = `<ion-label>`;
         if (med.days) {
-          itemHTML += `<p class="eyebrow"><ion-icon name="calendar-outline"></ion-icon> Tomar: ${this.generateDayText(med.days)}</p>`;
+          itemHTML += `<p class="eyebrow"><ion-icon name="calendar-outline"></ion-icon> Tomar: ${generateDayText(med.days)}</p>`;
         }
         itemHTML += `<h2>${med.name}</h2><p>${med.description}</p>`;
         if (med.dosage) {
           itemHTML += `<p class="dosage-text">${med.dosage}</p>`;
         }
         if (med.note) {
-          itemHTML += `<ion-chip color="${this.getColorForNoteLevel(med.note.level)}"><ion-label>${med.note.text}</ion-label></ion-chip>`;
+          itemHTML += `<ion-chip color="${getColorForNoteLevel(med.note.level)}"><ion-label>${med.note.text}</ion-label></ion-chip>`;
         }
         itemHTML += `</ion-label>`;
         item.innerHTML = itemHTML;
@@ -138,7 +96,7 @@ class SchedulePage extends HTMLElement {
     let formattedDate = new Intl.DateTimeFormat('es-CO', dateOptions).format(now);
     titleEl.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
     const today = now.getDay(),
-          medsTodayCount = this.medicationSchedule.reduce((c, b) => c + b.medications.filter(m => !m.days || m.days.includes(today)).length, 0);
+          medsTodayCount = medicationSchedule.reduce((c, b) => c + b.medications.filter(m => !m.days || m.days.includes(today)).length, 0);
     subtitleEl.textContent = `${medsTodayCount} medicamentos para hoy`;
   }
 
@@ -149,11 +107,11 @@ class SchedulePage extends HTMLElement {
     this.querySelectorAll('.schedule-block-past, .schedule-block-next').forEach(e => e.classList.remove('schedule-block-past', 'schedule-block-next'));
     this.querySelectorAll('.next-chip').forEach(e => e.remove());
 
-    for (const block of this.medicationSchedule) {
+    for (const block of medicationSchedule) {
       const blockId = `block-${block.time.replace(/[\s:]/g, '')}`;
       const blockElement = this.querySelector(`#${blockId}`);
       if (!blockElement) continue;
-      const blockTimeInMinutes = this.timeToMinutes(block.time);
+      const blockTimeInMinutes = timeToMinutes(block.time);
 
       if (!nextBlockFound && blockTimeInMinutes >= nowInMinutes) {
         blockElement.classList.add('schedule-block-next');
@@ -175,7 +133,7 @@ class SchedulePage extends HTMLElement {
   setupRefresher() {
     if (!this.refresher) return;
     this.refresher.addEventListener('ionRefresh', async e => {
-      // Aquí podrías invocar forceUpdate o recarga
+      // Aquí puedes implementar fuerza actualización si quieres
       e.target.complete();
     });
   }
