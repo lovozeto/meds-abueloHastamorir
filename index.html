@@ -4,17 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Horario de Medicamentos</title>
-  
+
+  <!-- Manifest -->
+  <link rel="manifest" href="/meds-abueloHastamorir/manifest.json" />
+
   <!-- Ionic Core CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
-  
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css" />
+
   <!-- Ionic Core JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-  
-  <!-- Tus otros estilos y manifest -->
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="/meds-abueloHastamorir/manifest.json" />
 </head>
 <body>
   <ion-app>
@@ -38,8 +40,8 @@
     </ion-tabs>
   </ion-app>
 
-  <!-- Scripts modularizados -->
   <script type="module" src="data.js"></script>
+  <script type="module" src="shared.js"></script>
   <script type="module" src="schedule-page.js"></script>
   <script type="module" src="settings-page.js"></script>
   <script type="module" src="app.js"></script>
