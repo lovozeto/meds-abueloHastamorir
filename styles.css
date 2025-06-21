@@ -1,56 +1,74 @@
-/* Reset Ionic background and text colors */
+/* Variables base para tema claro y oscuro */
+:root {
+  --background-light: #f2f2f7;
+  --background-dark: #000000;
+  --text-light: #000000;
+  --text-dark: #ffffff;
+  --list-bg-light: #ffffff;
+  --list-bg-dark: #1c1c1e;
+  --list-border-radius: 14px;
+  --ion-color-primary: #0a84ff; /* Azul iOS */
+  --ion-color-medium: #8e8e93;
+}
+
+/* Reset general */
 body {
-  --ion-background-color: #f2f2f7;
-  --ion-text-color: #000000;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: var(--background-light);
+  color: var(--text-light);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
   line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark mode */
+/* Modo oscuro */
 body.dark {
-  --ion-background-color: #000000;
-  --ion-text-color: #ffffff;
-  --ion-color-step-100: #121212;
-  --ion-color-step-50: #222222;
-  --ion-color-medium: #999999;
+  background: var(--background-dark);
+  color: var(--text-dark);
 }
 
-/* Ionic content background */
+/* Ionic content */
 ion-content {
-  --background: var(--ion-background-color);
-  color: var(--ion-text-color);
+  --background: inherit;
+  color: inherit;
+  padding-bottom: calc(var(--ion-safe-area-bottom, 0) + 56px); /* evitar tapbar */
 }
 
-/* Page container */
+/* Contenedor principal */
 .page-container {
-  max-width: 768px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-/* List inset style like iOS */
+/* Listas inset con sombras suaves */
 ion-list[inset] {
-  border-radius: 12px;
-  background: var(--ion-color-step-50);
-  margin-bottom: 24px;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+  border-radius: var(--list-border-radius);
+  background: var(--list-bg-light);
+  margin-bottom: 22px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  border: none;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 body.dark ion-list[inset] {
-  background: var(--ion-color-step-100);
+  background: var(--list-bg-dark);
   box-shadow: none;
 }
 
-/* List header styling */
+/* List header */
 ion-list-header {
   margin-bottom: 8px;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--ion-color-medium);
   padding-left: 12px;
+  padding-top: 6px;
 }
 
 /* Ion header toolbar */
@@ -60,40 +78,60 @@ ion-header ion-toolbar {
   box-shadow: none;
 }
 
-/* Ion header title */
+/* Título header */
 ion-header ion-title {
   font-weight: 700;
-  font-size: 1.8rem;
-  padding-left: 24px;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  color: var(--ion-text-color);
+  font-size: 1.85rem;
+  padding-left: 16px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  color: inherit;
 }
 
-/* Dosage text style */
+/* Ítems y textos */
+ion-item {
+  --background: transparent;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 48px;
+}
+
+ion-item ion-label h2 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.25;
+  color: inherit;
+}
+
+ion-item ion-label p {
+  margin: 2px 0 0 0;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: var(--ion-color-medium);
+}
+
 .dosage-text {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ion-color-primary);
-  margin-top: 8px;
+  margin-top: 6px;
   line-height: 1.3;
 }
 
-/* Eyebrow style (small label) */
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--ion-color-medium-shade);
+  color: var(--ion-color-medium);
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
-  line-height: 1.3;
+  gap: 6px;
 }
 
-/* Items not for today */
+/* Elementos tachados para días que no son hoy */
 .med-not-today {
   text-decoration: line-through;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* Schedule block past */
@@ -101,44 +139,78 @@ ion-header ion-title {
   opacity: 0.5;
 }
 
-/* Schedule block next with shadow */
+/* Schedule block next con sombra */
 .schedule-block-next ion-list {
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 12px rgb(0 0 0 / 0.12);
   transform: translateY(-2px);
   transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
 }
 
 body.dark .schedule-block-next ion-list {
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 15px rgb(255 255 255 / 0.15);
 }
 
-/* Next chip style */
+/* Chip siguiente */
 .next-chip {
-  margin-left: 12px;
-  font-size: 0.8rem;
+  margin-left: 10px;
+  font-size: 0.85rem;
 }
 
-/* Padding for ion-tab-bar */
+/* Safe area para tab bar */
 ion-tab-bar {
   padding-bottom: var(--ion-safe-area-bottom, 0);
 }
 
-/* Fix for ion-content bottom padding to avoid tab bar overlap */
+/* Para evitar que el contenido quede oculto detrás del tabbar */
 ion-content {
-  padding-bottom: calc(var(--ion-safe-area-bottom, 0) + 56px); /* 56px tabbar height */
+  padding-bottom: calc(var(--ion-safe-area-bottom, 0) + 56px);
 }
 
-/* Button and chip tweaks */
+/* Ion-chip estilos */
 ion-chip {
-  font-size: 0.85rem;
-  line-height: 1.2;
-  font-weight: 500;
-  border-radius: 12px;
+  font-size: 0.87rem;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 0 8px;
+  line-height: 1.3;
 }
 
-/* Ion-item label margin fix */
-ion-item ion-label h2,
-ion-item ion-label p {
-  margin: 0;
-  line-height: 1.3;
+/* Selector de modo oscuro - estilo botón grupo */
+.theme-selector {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.theme-option {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--ion-color-medium);
+  color: var(--ion-color-medium);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+
+.theme-option.selected {
+  background: var(--ion-color-primary);
+  color: #fff;
+  border-color: var(--ion-color-primary);
+}
+
+/* En modo oscuro ajustar colores del selector */
+body.dark .theme-option {
+  border-color: #555;
+  color: #ccc;
+}
+
+body.dark .theme-option.selected {
+  background: var(--ion-color-primary);
+  color: #fff;
+  border-color: var(--ion-color-primary);
 }
