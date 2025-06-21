@@ -5,9 +5,9 @@ const App = {
   detectMode() {
     const ua = navigator.userAgent;
     if (/Android/i.test(ua) || /Windows/i.test(ua)) {
-      return 'md';
+      return 'md'; // Material Design para Android y Windows
     }
-    return 'ios';
+    return 'ios'; // iOS para macOS y otros
   },
 
   applyDarkMode(pref) {
