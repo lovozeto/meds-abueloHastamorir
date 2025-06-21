@@ -1,12 +1,16 @@
 import { medicationSchedule, timeToMinutes } from './shared.js';
 
 class SettingsPage extends HTMLElement {
+  getDarkModePref() {
+    return localStorage.getItem('darkModePref') || 'auto';
+  }
+
   connectedCallback() {
     this.innerHTML = `
       <ion-header translucent="true">
         <ion-toolbar><ion-title>Configuración</ion-title></ion-toolbar>
       </ion-header>
-      <ion-content fullscreen="true">
+      <ion-content fullscreen>
         <div class="page-container ion-padding">
           <ion-list-header><ion-label>Recordatorios</ion-label></ion-list-header>
           <ion-list inset="true">
@@ -25,6 +29,14 @@ class SettingsPage extends HTMLElement {
               </ion-label>
             </ion-item>
           </ion-list>
+
+          <ion-list-header><ion-label>Apariencia</ion-label></ion-list-header>
+          <ion-segment value="${this.getDarkModePref()}" id="dark-mode-segment">
+            <ion-segment-button value="auto">Auto</ion-segment-button>
+            <ion-segment-button value="light">Claro</ion-segment-button>
+            <ion-segment-button value="dark">Oscuro</ion-segment-button>
+          </ion-segment>
+
           <ion-list-header><ion-label>Mantenimiento</ion-label></ion-list-header>
           <ion-list inset="true">
             <ion-item button id="force-update-button">
@@ -57,10 +69,20 @@ class SettingsPage extends HTMLElement {
         this.showToast('No se ha concedido permiso para notificaciones.', 'warning');
       }
     });
+
+    this.querySelector('#dark-mode-segment')?.addEventListener('ionChange', e => {
+      const value = e.detail.value;
+      if (window.App && typeof window.App.setDarkModePref === 'function') {
+        window.App.setDarkModePref(value);
+      }
+    });
   }
 
   async scheduleAllNotifications() {
-    if (!navigator.serviceWorker) return;
+    if (!navigator.serviceWorker) {
+      this.showToast('Service Worker no está disponible.', 'danger');
+      return;
+    }
 
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg || !('showTrigger' in Notification.prototype)) {
@@ -68,6 +90,7 @@ class SettingsPage extends HTMLElement {
       return;
     }
 
+    // Cerrar notificaciones existentes programadas
     const existing = await reg.getNotifications({ includeTriggered: true });
     existing.forEach(n => n.close());
 
@@ -80,15 +103,22 @@ class SettingsPage extends HTMLElement {
         if (!med.days || med.days.includes(today)) {
           const minutes = timeToMinutes(block.time);
           const notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(minutes / 60), minutes % 60, 0);
+
           if (notificationTime > now) {
-            reg.showNotification('Hora de tu medicamento', {
-              body: `Tomar: ${med.name} (${med.dosage})`,
-              tag: `med-${block.time}-${med.name}`,
-              icon: './icons/icon-192x192.png',
-              badge: './icons/icon-192x192.png',
-              showTrigger: new TimestampTrigger(notificationTime.getTime())
-            });
-            count++;
+            try {
+              reg.showNotification('Hora de tu medicamento', {
+                body: `Tomar: ${med.name} (${med.dosage || ''})`,
+                tag: `med-${block.time}-${med.name}`,
+                icon: './icons/icon-192x192.png',
+                badge: './icons/icon-192x192.png',
+                showTrigger: new TimestampTrigger(notificationTime.getTime())
+              });
+              count++;
+            } catch (error) {
+              this.showToast('Error al programar notificaciones.', 'danger');
+              console.error(error);
+              return;
+            }
           }
         }
       }
